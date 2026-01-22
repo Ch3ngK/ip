@@ -22,7 +22,7 @@ public class Vex {
                 System.out.println("____________________________________________________________");
                 System.out.println("Here are the tasks in your list: ");
                 for (int i = 0; i < arr.size(); i++) {
-                    System.out.println((i + 1) + "." + arr.get(i).getStatus());
+                    System.out.println((i + 1) + "." + arr.get(i).toString());
                 }
                 System.out.println("____________________________________________________________");
                 continue;
@@ -34,26 +34,52 @@ public class Vex {
                 t.markAsDone();
                 System.out.println("____________________________________________________________");
                 System.out.println("Nice! I've marked this task as done:");
-                System.out.println(t.getStatus());
+                System.out.println(t.toString());
                 System.out.println("____________________________________________________________");
                 continue;
             }
+
             if (input.startsWith("unmark")) {
                 int taskNumber = Integer.parseInt(input.split(" ")[1]);
                 Task t = arr.get(taskNumber - 1);
                 t.markAsUndone();
                 System.out.println("____________________________________________________________");
                 System.out.println("OK, I've marked this task as not done yet:");
-                System.out.println(t.getStatus());
+                System.out.println(t.toString());
                 System.out.println("____________________________________________________________");
                 continue;
             }
 
-            System.out.println("____________________________________________________________");
-            Task newTask = new Task(input);
+            Task newTask;
+
+            if (input.startsWith("todo")) {
+                String description = input.substring(5); // remove "todo "
+                newTask = new ToDos(description);
+            }
+            else if (input.startsWith("deadline")) {
+                String[] parts = input.substring(9).split(" /by ");
+                String description = parts[0];
+                String by = parts[1];
+                newTask = new Deadlines(description, by);
+            }
+            else if (input.startsWith("event")) {
+                String[] parts = input.substring(6).split(" /from | /to ");
+                String description = parts[0];
+                String from = parts[1];
+                String to = parts[2];
+                newTask = new Events(description, from, to);
+            }
+            else {
+                newTask = new Task(input);  // fallback
+            }
+
             arr.add(newTask);
-            System.out.println("added: " + input);
             System.out.println("____________________________________________________________");
+            System.out.println("Got it. I've added this task:");
+            System.out.println("  " + newTask.toString());
+            System.out.println("Now you have " + arr.size() + " tasks in the list.");
+            System.out.println("____________________________________________________________");
+
 
         }
         sc.close();
@@ -81,7 +107,8 @@ class Task {
         this.isDone = false;
     }
 
-    public String getStatus() {
+    @Override
+    public String toString() {
         return "[" + getStatusIcon() + "] " + this.description;
     }
 
@@ -93,3 +120,46 @@ class Task {
         this.incomplete();
     }
 }
+
+class ToDos extends Task {
+
+    public ToDos(String description) {
+        super(description);
+    }
+
+    @Override
+    public String toString() {
+        return "[T]" + super.toString();
+    }
+}
+
+class Deadlines extends Task {
+    protected String by;
+
+    public Deadlines(String description, String by) {
+        super(description);
+        this.by = by;
+    }
+
+    @Override
+    public String toString() {
+        return "[D]" + super.toString() + " (by: " + by + ")";
+    }
+}
+
+class Events extends Task {
+    protected String from;
+    protected String to;
+
+    public Events(String description, String from, String to) {
+        super(description);
+        this.from = from;
+        this.to = to;
+    }
+
+    @Override
+    public String toString() {
+        return "[E]" + super.toString() + " (from: " + from + " to: " + to + ")";
+    }
+}
+
