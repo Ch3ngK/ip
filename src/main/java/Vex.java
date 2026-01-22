@@ -10,7 +10,9 @@ public class Vex {
         System.out.println("____________________________________________________________");
 
         while (true) {
-            String input = sc.nextLine();
+            String input = sc.nextLine().trim();
+            if (input.isEmpty()) continue;
+
             if (input.equalsIgnoreCase("bye")) {
                 System.out.println("____________________________________________________________");
                 System.out.println("Bye. Hope to see you again soon!");
@@ -28,49 +30,84 @@ public class Vex {
                 continue;
             }
 
-            if (input.startsWith("mark")) {
-                int taskNumber = Integer.parseInt(input.split(" ")[1]);
-                Task t = arr.get(taskNumber - 1);
-                t.markAsDone();
-                System.out.println("____________________________________________________________");
-                System.out.println("Nice! I've marked this task as done:");
-                System.out.println(t.toString());
-                System.out.println("____________________________________________________________");
-                continue;
-            }
-
-            if (input.startsWith("unmark")) {
-                int taskNumber = Integer.parseInt(input.split(" ")[1]);
-                Task t = arr.get(taskNumber - 1);
-                t.markAsUndone();
-                System.out.println("____________________________________________________________");
-                System.out.println("OK, I've marked this task as not done yet:");
-                System.out.println(t.toString());
-                System.out.println("____________________________________________________________");
+            if (input.startsWith("mark") || input.startsWith("unmark")) {
+                String[] parts = input.split(" ");
+                if (parts.length < 2) {
+                    showError("You did not specify a task number to " + parts[0] + ". Remember to do so!");
+                    continue;
+                }
+                try {
+                    int taskNumber = Integer.parseInt(parts[1]);
+                    if (taskNumber < 1 || taskNumber > arr.size()) {
+                        showError("Task number out of range.");
+                        continue;
+                    }
+                    Task t = arr.get(taskNumber - 1);
+                    if (parts[0].equals("mark")) {
+                        t.markAsDone();
+                        System.out.println("____________________________________________________________");
+                        System.out.println("Nice! I've marked this task as done:");
+                        System.out.println(t.toString());
+                        System.out.println("____________________________________________________________");
+                        continue;
+                    } else if (parts[0].equals("unmark")) {
+                        t.markAsUndone();
+                        System.out.println("____________________________________________________________");
+                        System.out.println("OK, I've marked this task as not done yet:");
+                        System.out.println(t.toString());
+                        System.out.println("____________________________________________________________");
+                        continue;
+                    }
+                } catch (NumberFormatException e) {
+                    showError("Invalid task number format");
+                }
                 continue;
             }
 
             Task newTask;
-
             if (input.startsWith("todo")) {
-                String description = input.substring(5); // remove "todo "
+                String description = "";
+                if (input.length() > 5) {
+                    description = input.substring(5).trim(); // safely get text after "todo "
+                }
+                if (description.isEmpty()) {
+                    showError("The description of a todo cannot be empty! Remember to fill it up! :-)");
+                    continue;
+                }
                 newTask = new ToDos(description);
             }
             else if (input.startsWith("deadline")) {
-                String[] parts = input.substring(9).split(" /by ");
+                if (!input.contains("/by")) {
+                    showError("Deadline command must have /by followed by a date/time! :-)");
+                    continue;
+                }
+                String[] parts = input.substring(9).split(" /by ",2);
+                if (parts.length < 2 || parts[0].trim().isEmpty() || parts[1].trim().isEmpty()) {
+                    showError("The description or times of an event is empty. Remember to fill it up! :-)");
+                    continue;
+                }
                 String description = parts[0];
                 String by = parts[1];
                 newTask = new Deadlines(description, by);
             }
             else if (input.startsWith("event")) {
+                if (!input.contains("/from") || !input.contains("/to")) { // <-- EDITED: validate format
+                    showError("Event command must have /from and /to with times! :-)");
+                    continue;
+                }
                 String[] parts = input.substring(6).split(" /from | /to ");
+                if (parts.length < 3 || parts[0].trim().isEmpty() || parts[1].trim().isEmpty() || parts[2].trim().isEmpty()) {
+                    showError("The description or times of an event is empty. Remember to fill it up!");
+                    continue;
+                }
                 String description = parts[0];
                 String from = parts[1];
                 String to = parts[2];
                 newTask = new Events(description, from, to);
             }
             else {
-                newTask = new Task(input);  // fallback
+                showError("I apologise, but I am unsure of what that means. Care to edit your message? :-(");
+                continue;
             }
 
             arr.add(newTask);
@@ -83,7 +120,15 @@ public class Vex {
 
         }
         sc.close();
+
     }
+    //Helper methods
+    private static void showError(String message) {
+        System.out.println("____________________________________________________________");
+        System.out.println(" Oh no! " + message);
+        System.out.println("____________________________________________________________");
+    }
+
 }
 
 class Task {
