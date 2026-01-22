@@ -105,7 +105,20 @@ public class Vex {
                 String to = parts[2];
                 newTask = new Events(description, from, to);
             }
-            else {
+            else if (input.startsWith("delete")) {
+                String[] parts = input.split(" " ,2);
+                if (parts.length < 2) {
+                    showError("You did not specify a task number. Remember to do so! :-)");
+                }
+                int taskNumber = Integer.parseInt(parts[1]);
+                Task removedTask = arr.remove(taskNumber - 1);
+                System.out.println("____________________________________________________________");
+                System.out.println("Noted. I've removed this task:");
+                System.out.println("  " + removedTask.toString());
+                System.out.println("Now you have " + arr.size() + " tasks in the list.");
+                System.out.println("____________________________________________________________");
+                continue;
+                } else {
                 showError("I apologise, but I am unsure of what that means. Care to edit your message? :-(");
                 continue;
             }
