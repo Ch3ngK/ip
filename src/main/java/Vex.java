@@ -1,9 +1,11 @@
 import java.util.*;
+
 public class Vex {
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
         String name = "Vex";
-        ArrayList<Task> arr = new ArrayList<>(); //create a new arraylist storing the tasks completed
+        Storage storage = new Storage();
+        ArrayList<Task> arr = storage.load(); //create a new arraylist storing the tasks completed
 
         System.out.println("Hello! I'm " + name);
         System.out.println("What can I do for you?");
@@ -49,6 +51,7 @@ public class Vex {
                         System.out.println("Nice! I've marked this task as done:");
                         System.out.println(t.toString());
                         System.out.println("____________________________________________________________");
+                        storage.save(arr);
                         continue;
                     } else if (parts[0].equals("unmark")) {
                         t.markAsUndone();
@@ -56,6 +59,7 @@ public class Vex {
                         System.out.println("OK, I've marked this task as not done yet:");
                         System.out.println(t.toString());
                         System.out.println("____________________________________________________________");
+                        storage.save(arr);
                         continue;
                     }
                 } catch (NumberFormatException e) {
@@ -111,7 +115,12 @@ public class Vex {
                     showError("You did not specify a task number. Remember to do so! :-)");
                 }
                 int taskNumber = Integer.parseInt(parts[1]);
+                if (taskNumber < 1 || taskNumber > arr.size()) {
+                    showError("Task number out of range.");
+                    continue;
+                }
                 Task removedTask = arr.remove(taskNumber - 1);
+                storage.save(arr);
                 System.out.println("____________________________________________________________");
                 System.out.println("Noted. I've removed this task:");
                 System.out.println("  " + removedTask.toString());
@@ -124,6 +133,7 @@ public class Vex {
             }
 
             arr.add(newTask);
+            storage.save(arr);
             System.out.println("____________________________________________________________");
             System.out.println("Got it. I've added this task:");
             System.out.println("  " + newTask.toString());
@@ -144,80 +154,7 @@ public class Vex {
 
 }
 
-class Task {
-    protected String description;
-    protected boolean isDone;
 
-    public Task(String description) {
-        this.description = description;
-        this.isDone = false;
-    }
 
-    public String getStatusIcon() {
-        return (isDone ? "X" : " ");
-    }
 
-    public void complete() {
-        this.isDone = true;
-    }
-
-    public void incomplete() {
-        this.isDone = false;
-    }
-
-    @Override
-    public String toString() {
-        return "[" + getStatusIcon() + "] " + this.description;
-    }
-
-    public void markAsDone() {
-        this.complete();
-    }
-
-    public void markAsUndone() {
-        this.incomplete();
-    }
-}
-
-class ToDos extends Task {
-
-    public ToDos(String description) {
-        super(description);
-    }
-
-    @Override
-    public String toString() {
-        return "[T]" + super.toString();
-    }
-}
-
-class Deadlines extends Task {
-    protected String by;
-
-    public Deadlines(String description, String by) {
-        super(description);
-        this.by = by;
-    }
-
-    @Override
-    public String toString() {
-        return "[D]" + super.toString() + " (by: " + by + ")";
-    }
-}
-
-class Events extends Task {
-    protected String from;
-    protected String to;
-
-    public Events(String description, String from, String to) {
-        super(description);
-        this.from = from;
-        this.to = to;
-    }
-
-    @Override
-    public String toString() {
-        return "[E]" + super.toString() + " (from: " + from + " to: " + to + ")";
-    }
-}
 
