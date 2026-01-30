@@ -1,2 +1,4 @@
-T | 0 | assignments
-E | 0 | concert | 7pm | 10pm
+T | 1 | assignments
+T | 0 | study
+E | 0 | Concert | 2026-01-30T18:00 | 2026-01-30T21:00
+D | 0 | CS2103T | 2026-02-03T18:00
