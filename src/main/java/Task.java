@@ -1,3 +1,5 @@
+import java.time.LocalDate;
+
 public class Task {
     protected String description;
     protected boolean isDone;
@@ -36,6 +38,10 @@ public class Task {
     return String.format("T | %d | %s",
             isDone ? 1 : 0,
             description);
-}
+    }
+
+    public boolean occursOn(LocalDate date) {
+        return false; 
+    }
 
 }
