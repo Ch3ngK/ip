@@ -5,6 +5,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.time.LocalDateTime;
+
 
 public class Storage {
 
@@ -73,9 +75,12 @@ public class Storage {
         if (type.equals("T")) {
             task = new ToDos(desc);
         } else if (type.equals("D")) {
-            task = new Deadlines(desc, parts[3]);
+            LocalDateTime byDate = LocalDateTime.parse(parts[3]); // parse ISO datetime
+            task = new Deadlines(desc, byDate);
         } else if (type.equals("E")) {
-            task = new Events(desc, parts[3], parts[4]);
+            LocalDateTime fromDate = LocalDateTime.parse(parts[3]);
+            LocalDateTime toDate = LocalDateTime.parse(parts[4]);
+            task = new Events(desc, fromDate, toDate);
         } else {
             throw new IllegalArgumentException();
         }
