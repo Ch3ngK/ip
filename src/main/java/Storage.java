@@ -12,8 +12,8 @@ public class Storage {
 
     private final Path filePath;
 
-    public Storage() {
-        filePath = Paths.get("data", "vex.txt");
+    public Storage(String filePathString) {
+        this.filePath = Paths.get(filePathString);
     }
 
     public void save(List<Task> tasks) {

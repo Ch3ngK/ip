@@ -1,4 +1,5 @@
 import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
 public class Deadlines extends Task {
@@ -26,5 +27,10 @@ public class Deadlines extends Task {
                 isDone ? 1 : 0,
                 description,
                 by);
+    }
+
+    @Override
+    public boolean occursOn(LocalDate date) {
+        return this.by.toLocalDate().equals(date);
     }
 }
