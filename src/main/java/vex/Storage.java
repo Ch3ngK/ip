@@ -1,4 +1,5 @@
 package vex;
+
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -8,15 +9,27 @@ import java.util.ArrayList;
 import java.util.List;
 import java.time.LocalDateTime;
 
-
+/**
+ * Deals with loading tasks from the file and saving tasks in the file.
+ */
 public class Storage {
 
     private final Path filePath;
 
+    /**
+     * Initializes a Storage object with the specified file path.
+     *
+     * @param filePathString The string path of the file to store data.
+     */
     public Storage(String filePathString) {
         this.filePath = Paths.get(filePathString);
     }
 
+    /**
+     * Saves the list of tasks to the hard disk.
+     *
+     * @param tasks The list of Task objects to be saved.
+     */
     public void save(List<Task> tasks) {
         try {
             Files.createDirectories(filePath.getParent());
@@ -27,12 +40,17 @@ public class Storage {
                     writer.newLine();
                 }
             }
-
         } catch (IOException e) {
             System.out.println("Error saving tasks to file.");
         }
     }
 
+    /**
+     * Loads the tasks from the hard disk and returns them as an ArrayList.
+     * If the file does not exist, a new file is created and an empty list is returned.
+     *
+     * @return An ArrayList of tasks loaded from the file.
+     */
     public ArrayList<Task> load() {
         ArrayList<Task> tasks = new ArrayList<>();
 
@@ -52,7 +70,6 @@ public class Storage {
                     System.out.println("Ignoring corrupted data: " + line);
                 }
             }
-
         } catch (IOException e) {
             System.out.println("Error loading tasks from file.");
         }
@@ -60,6 +77,13 @@ public class Storage {
         return tasks;
     }
 
+    /**
+     * Parses a single line from the save file into a Task object.
+     *
+     * @param line The string line representing a task in the save file.
+     * @return The corresponding Task object (Todo, Deadline, or Event).
+     * @throws IllegalArgumentException If the line format is invalid.
+     */
     private Task parseTask(String line) {
         String[] parts = line.split(" \\| ");
 
@@ -76,7 +100,7 @@ public class Storage {
         if (type.equals("T")) {
             task = new ToDos(desc);
         } else if (type.equals("D")) {
-            LocalDateTime byDate = LocalDateTime.parse(parts[3]); // parse ISO datetime
+            LocalDateTime byDate = LocalDateTime.parse(parts[3]);
             task = new Deadlines(desc, byDate);
         } else if (type.equals("E")) {
             LocalDateTime fromDate = LocalDateTime.parse(parts[3]);

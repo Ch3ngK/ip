@@ -1,4 +1,4 @@
 T | 1 | game
 E | 0 | concert | 2026-01-30T18:00 | 2026-01-30T21:00
 D | 0 | home work | 2026-01-31T18:00
-E | 0 | go out with friends | 2026-02-01T18:00 | 2026-02-01T21:00
+E | 1 | go out with friends | 2026-02-01T18:00 | 2026-02-01T21:00
