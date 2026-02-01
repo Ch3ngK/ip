@@ -45,7 +45,8 @@ public class Task {
     }
 
     /**
-     * Returns a string representation of the task, including its status and description.
+     * Returns a string representation of the task, including its status and
+     * description.
      *
      * @return A formatted string of the task.
      */
@@ -88,6 +89,6 @@ public class Task {
      * @return false by default.
      */
     public boolean occursOn(LocalDate date) {
-        return false; 
+        return false;
     }
 }

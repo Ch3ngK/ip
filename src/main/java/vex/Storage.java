@@ -47,7 +47,8 @@ public class Storage {
 
     /**
      * Loads the tasks from the hard disk and returns them as an ArrayList.
-     * If the file does not exist, a new file is created and an empty list is returned.
+     * If the file does not exist, a new file is created and an empty list is
+     * returned.
      *
      * @return An ArrayList of tasks loaded from the file.
      */

@@ -2,9 +2,12 @@ package vex;
 
 import java.util.Scanner;
 
+import java.util.Scanner;
+
 /**
  * Entry point of the Vex chatbot application.
- * Initializes the application's main components and handles the primary control flow.
+ * Initializes the application's main components and handles the primary control
+ * flow.
  */
 public class Vex {
     private Storage storage;
@@ -13,7 +16,8 @@ public class Vex {
 
     /**
      * Initializes a new Vex instance.
-     * Sets up the UI, storage, and attempts to load existing tasks from the specified file.
+     * Sets up the UI, storage, and attempts to load existing tasks from the
+     * specified file.
      *
      * @param filePath The path to the file where tasks are stored.
      */
@@ -30,7 +34,8 @@ public class Vex {
 
     /**
      * Starts the main execution loop of the chatbot.
-     * Continues to read and process user commands until the "bye" command is received.
+     * Continues to read and process user commands until the "bye" command is
+     * received.
      */
     public void run() {
         ui.showGreeting();

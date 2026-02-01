@@ -16,7 +16,7 @@ public class ToDos extends Task {
     }
 
     /**
-     * Returns a string representation of the todo task, including the 
+     * Returns a string representation of the todo task, including the
      * status icon and the description.
      *
      * @return A formatted string representing the todo task.

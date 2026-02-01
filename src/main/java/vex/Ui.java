@@ -5,7 +5,8 @@ import java.time.format.DateTimeFormatter;
 
 /**
  * Handles the user interface of the application.
- * Responsible for displaying messages, errors, and task information to the user.
+ * Responsible for displaying messages, errors, and task information to the
+ * user.
  */
 public class Ui {
     /** A decorative line used to separate message blocks. */
@@ -89,7 +90,7 @@ public class Ui {
     /**
      * Confirms that a task has been successfully added and shows the new total.
      *
-     * @param t The task that was added.
+     * @param t    The task that was added.
      * @param size The current number of tasks in the list.
      */
     public void showAddedTask(Task t, int size) {
@@ -103,7 +104,7 @@ public class Ui {
     /**
      * Confirms that a task has been removed and shows the new total.
      *
-     * @param t The task that was removed.
+     * @param t    The task that was removed.
      * @param size The current number of tasks remaining in the list.
      */
     public void showDeletedTask(Task t, int size) {
@@ -117,7 +118,7 @@ public class Ui {
     /**
      * Displays tasks that occur on a specific date.
      *
-     * @param tasks The TaskList to search through.
+     * @param tasks     The TaskList to search through.
      * @param queryDate The date for which to filter tasks.
      */
     public void showTasksOnDate(TaskList tasks, LocalDate queryDate) {
@@ -133,6 +134,8 @@ public class Ui {
         if (!found) {
             System.out.println("No tasks found on this date.");
         }
+        if (!found)
+            System.out.println("No tasks found on this date.");
         System.out.println(LINE);
     }
 }

@@ -6,7 +6,8 @@ import java.time.format.DateTimeFormatter;
 
 /**
  * Represents a deadline task.
- * A deadline task has a description and a date/time by which it must be completed.
+ * A deadline task has a description and a date/time by which it must be
+ * completed.
  */
 public class Deadlines extends Task {
     private LocalDateTime by;
@@ -15,24 +16,25 @@ public class Deadlines extends Task {
      * Initializes a new Deadlines task with the specified description and deadline.
      *
      * @param description The description of the task.
-     * @param by The date and time the task is due.
+     * @param by          The date and time the task is due.
      */
     public Deadlines(String description, LocalDateTime by) {
         super(description);
         this.by = by;
     }
-    
+
     /**
      * Returns the deadline of the task.
      *
      * @return The LocalDateTime representing when the task is due.
      */
+
     public LocalDateTime getBy() {
         return by;
     }
 
     /**
-     * Returns a string representation of the deadline task, including the 
+     * Returns a string representation of the deadline task, including the
      * status icon, description, and formatted deadline date.
      *
      * @return A formatted string representing the deadline.

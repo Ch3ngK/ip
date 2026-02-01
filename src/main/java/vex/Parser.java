@@ -7,31 +7,38 @@ import java.time.format.DateTimeParseException;
 
 /**
  * Parses user input into commands and executes them.
- * This class serves as the logic engine that connects user input to TaskList and Storage.
+ * This class serves as the logic engine that connects user input to TaskList
+ * and Storage.
  */
 public class Parser {
 
     /** The format expected for date-time input: yyyy-MM-dd HHmm. */
-    public static final DateTimeFormatter INPUT_FORMAT = 
-            DateTimeFormatter.ofPattern("yyyy-MM-dd HHmm");
+    public static final DateTimeFormatter INPUT_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HHmm");
 
     /**
      * Parses the user input and executes the corresponding actions.
      *
      * @param input   The full string entered by the user.
+     *                public static final DateTimeFormatter INPUT_FORMAT =
+     *                DateTimeFormatter.ofPattern("yyyy-MM-dd HHmm");
+     * 
+     *                /**
+     *                Parses the user input and executes the corresponding actions.
+     *                * @param input The full string entered by the user.
+     * 
      * @param tasks   The TaskList to modify or query.
      * @param ui      The Ui to handle user feedback.
      * @param storage The Storage to save changes to the file.
      */
     public static void handleCommand(String input, TaskList tasks, Ui ui, Storage storage) {
-        
+
         // Show List
         if (input.equalsIgnoreCase("list")) {
             ui.showTaskList(tasks);
             return;
         }
 
-        // Show Date 
+        // Show Date
         if (input.startsWith("show")) {
             handleShow(input, tasks, ui);
             return;
@@ -158,14 +165,17 @@ public class Parser {
                 if (desc.isEmpty()) {
                     throw new IllegalArgumentException("The description of a todo cannot be empty!");
                 }
+                if (desc.isEmpty())
+                    throw new IllegalArgumentException(
+                            "The description of a todo cannot be empty! Remember to fill it up! :-)");
                 newTask = new ToDos(desc);
             } else if (input.startsWith("deadline")) {
                 String[] parts = input.substring(8).split(" /by ", 2);
                 newTask = new Deadlines(parts[0].trim(), LocalDateTime.parse(parts[1].trim(), INPUT_FORMAT));
             } else if (input.startsWith("event")) {
                 String[] parts = input.substring(5).split(" /from | /to ");
-                newTask = new Events(parts[0].trim(), 
-                        LocalDateTime.parse(parts[1].trim(), INPUT_FORMAT), 
+                newTask = new Events(parts[0].trim(),
+                        LocalDateTime.parse(parts[1].trim(), INPUT_FORMAT),
                         LocalDateTime.parse(parts[2].trim(), INPUT_FORMAT));
             }
 
