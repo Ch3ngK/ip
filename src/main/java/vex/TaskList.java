@@ -1,4 +1,5 @@
 package vex;
+
 import java.util.ArrayList;
 
 public class TaskList {
@@ -12,13 +13,33 @@ public class TaskList {
         this.tasks = new ArrayList<>();
     }
 
-    public void add(Task t) { tasks.add(t); }
-    
-    public Task delete(int index) { return tasks.remove(index); }
-    
-    public Task get(int index) { return tasks.get(index); }
-    
-    public int size() { return tasks.size(); }
-    
-    public ArrayList<Task> getTasks() { return tasks; }
+    public void add(Task t) {
+        tasks.add(t);
+    }
+
+    public Task delete(int index) {
+        return tasks.remove(index);
+    }
+
+    public Task get(int index) {
+        return tasks.get(index);
+    }
+
+    public int size() {
+        return tasks.size();
+    }
+
+    public ArrayList<Task> getTasks() {
+        return tasks;
+    }
+
+    public TaskList findTasks(String keyword) {
+        TaskList matchingTasks = new TaskList();
+        for (Task task : tasks) {
+            if (task.toString().contains(keyword)) {
+                matchingTasks.add(task);
+            }
+        }
+        return matchingTasks;
+    }
 }

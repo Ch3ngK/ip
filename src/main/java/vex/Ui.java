@@ -1,4 +1,5 @@
 package vex;
+
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
@@ -77,7 +78,21 @@ public class Ui {
                 found = true;
             }
         }
-        if (!found) System.out.println("No tasks found on this date.");
+        if (!found)
+            System.out.println("No tasks found on this date.");
         System.out.println(LINE);
+    }
+
+    public void showSearchResults(TaskList matchingTasks) {
+        showLine();
+        if (matchingTasks.size() == 0) {
+            System.out.println("No matching tasks found in your list!");
+        } else {
+            System.out.println("Here are the matching tasks in your list:");
+            for (int i = 0; i < matchingTasks.size(); i++) {
+                System.out.println(" " + (i + 1) + "." + matchingTasks.get(i));
+            }
+        }
+        showLine();
     }
 }
