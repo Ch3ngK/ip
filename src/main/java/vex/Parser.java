@@ -1,17 +1,24 @@
 package vex;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 
+/**
+ * Parses user input into commands and executes them.
+ * This class serves as the logic engine that connects user input to TaskList and Storage.
+ */
 public class Parser {
 
+    /** The format expected for date-time input: yyyy-MM-dd HHmm. */
     public static final DateTimeFormatter INPUT_FORMAT = 
             DateTimeFormatter.ofPattern("yyyy-MM-dd HHmm");
 
     /**
      * Parses the user input and executes the corresponding actions.
-     * * @param input   The full string entered by the user.
+     *
+     * @param input   The full string entered by the user.
      * @param tasks   The TaskList to modify or query.
      * @param ui      The Ui to handle user feedback.
      * @param storage The Storage to save changes to the file.
@@ -52,6 +59,13 @@ public class Parser {
         ui.showError("I apologise, but I am unsure of what that means. Care to edit your message? :-(");
     }
 
+    /**
+     * Processes the 'show' command to display tasks on a specific date.
+     *
+     * @param input The raw user input.
+     * @param tasks The current task list.
+     * @param ui    The UI used for output.
+     */
     private static void handleShow(String input, TaskList tasks, Ui ui) {
         String[] parts = input.split(" ", 2);
         if (parts.length < 2 || parts[1].trim().isEmpty()) {
@@ -66,6 +80,14 @@ public class Parser {
         }
     }
 
+    /**
+     * Processes 'mark' and 'unmark' commands to change task completion status.
+     *
+     * @param input   The raw user input.
+     * @param tasks   The current task list.
+     * @param ui      The UI used for output.
+     * @param storage The storage to update the local file.
+     */
     private static void handleMarkStatus(String input, TaskList tasks, Ui ui, Storage storage) {
         String[] parts = input.split(" ");
         if (parts.length < 2) {
@@ -92,6 +114,14 @@ public class Parser {
         }
     }
 
+    /**
+     * Processes the 'delete' command to remove a task.
+     *
+     * @param input   The raw user input.
+     * @param tasks   The current task list.
+     * @param ui      The UI used for output.
+     * @param storage The storage to update the local file.
+     */
     private static void handleDelete(String input, TaskList tasks, Ui ui, Storage storage) {
         String[] parts = input.split(" ", 2);
         if (parts.length < 2) {
@@ -112,12 +142,22 @@ public class Parser {
         }
     }
 
+    /**
+     * Processes commands for adding Todos, Deadlines, and Events.
+     *
+     * @param input   The raw user input.
+     * @param tasks   The current task list.
+     * @param ui      The UI used for output.
+     * @param storage The storage to update the local file.
+     */
     private static void handleAddTask(String input, TaskList tasks, Ui ui, Storage storage) {
         try {
             Task newTask = null;
             if (input.startsWith("todo")) {
                 String desc = input.substring(4).trim();
-                if (desc.isEmpty()) throw new IllegalArgumentException("The description of a todo cannot be empty! Remember to fill it up! :-)");
+                if (desc.isEmpty()) {
+                    throw new IllegalArgumentException("The description of a todo cannot be empty!");
+                }
                 newTask = new ToDos(desc);
             } else if (input.startsWith("deadline")) {
                 String[] parts = input.substring(8).split(" /by ", 2);
