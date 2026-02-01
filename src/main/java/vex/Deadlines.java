@@ -1,4 +1,5 @@
 package vex;
+
 import java.time.LocalDateTime;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -10,11 +11,10 @@ public class Deadlines extends Task {
         super(description);
         this.by = by;
     }
-    
+
     public LocalDateTime getBy() {
         return by;
     }
-
 
     @Override
     public String toString() {

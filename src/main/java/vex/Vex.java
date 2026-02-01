@@ -1,5 +1,6 @@
 package vex;
-import java.util.Scanner; 
+
+import java.util.Scanner;
 
 public class Vex {
     private Storage storage;

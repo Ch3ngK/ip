@@ -1,4 +1,5 @@
 package vex;
+
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
@@ -77,7 +78,8 @@ public class Ui {
                 found = true;
             }
         }
-        if (!found) System.out.println("No tasks found on this date.");
+        if (!found)
+            System.out.println("No tasks found on this date.");
         System.out.println(LINE);
     }
 }

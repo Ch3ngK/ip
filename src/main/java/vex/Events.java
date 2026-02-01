@@ -1,4 +1,5 @@
 package vex;
+
 import java.time.LocalDateTime;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -19,8 +20,7 @@ public class Events extends Task {
 
     public LocalDateTime getTo() {
         return to;
-    }   
-
+    }
 
     @Override
     public String toString() {

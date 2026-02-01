@@ -1,4 +1,5 @@
 package vex;
+
 import java.time.LocalDate;
 
 public class Task {
@@ -36,13 +37,13 @@ public class Task {
     }
 
     public String toFileString() {
-    return String.format("T | %d | %s",
-            isDone ? 1 : 0,
-            description);
+        return String.format("T | %d | %s",
+                isDone ? 1 : 0,
+                description);
     }
 
     public boolean occursOn(LocalDate date) {
-        return false; 
+        return false;
     }
 
 }
