@@ -25,6 +25,7 @@ public class Parser {
      *                /**
      *                Parses the user input and executes the corresponding actions.
      *                * @param input The full string entered by the user.
+     *                * @param input The full string entered by the user.
      * 
      * @param tasks   The TaskList to modify or query.
      * @param ui      The Ui to handle user feedback.
@@ -59,6 +60,12 @@ public class Parser {
         // Create tasks (Todo, Deadline, Event)
         if (input.startsWith("todo") || input.startsWith("deadline") || input.startsWith("event")) {
             handleAddTask(input, tasks, ui, storage);
+            return;
+        }
+
+        // Find tasks with same "keyword"
+        if (input.startsWith("find")) {
+            handleFind(input, tasks, ui);
             return;
         }
 
@@ -187,5 +194,16 @@ public class Parser {
         } catch (Exception e) {
             ui.showError("Invalid format for adding a task. Please check your timing or description!");
         }
+    }
+
+    private static void handleFind(String input, TaskList tasks, Ui ui) {
+        String[] parts = input.split(" ", 2);
+        if (parts.length < 2 || parts[1].trim().isEmpty()) {
+            ui.showError("You must provide a keyword to find.");
+            return;
+        }
+        String keyword = parts[1].trim();
+        TaskList matchingTasks = tasks.findTasks(keyword);
+        ui.showSearchResults(matchingTasks);
     }
 }
