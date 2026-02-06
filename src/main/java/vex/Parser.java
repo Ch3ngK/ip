@@ -19,18 +19,11 @@ public class Parser {
      * Parses the user input and executes the corresponding actions.
      *
      * @param input   The full string entered by the user.
-     *                public static final DateTimeFormatter INPUT_FORMAT =
-     *                DateTimeFormatter.ofPattern("yyyy-MM-dd HHmm");
-     * 
-     *                /**
-     *                Parses the user input and executes the corresponding actions.
-     *                * @param input The full string entered by the user.
-     *                * @param input The full string entered by the user.
-     * 
      * @param tasks   The TaskList to modify or query.
      * @param ui      The Ui to handle user feedback.
      * @param storage The Storage to save changes to the file.
      */
+
     public static void handleCommand(String input, TaskList tasks, Ui ui, Storage storage) {
 
         // Show List
@@ -172,9 +165,10 @@ public class Parser {
                 if (desc.isEmpty()) {
                     throw new IllegalArgumentException("The description of a todo cannot be empty!");
                 }
-                if (desc.isEmpty())
+                if (desc.isEmpty()) {
                     throw new IllegalArgumentException(
                             "The description of a todo cannot be empty! Remember to fill it up! :-)");
+                }
                 newTask = new ToDos(desc);
             } else if (input.startsWith("deadline")) {
                 String[] parts = input.substring(8).split(" /by ", 2);

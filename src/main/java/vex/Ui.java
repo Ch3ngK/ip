@@ -10,32 +10,32 @@ import java.time.format.DateTimeFormatter;
  */
 public class Ui {
     /** A decorative line used to separate message blocks. */
-    private final String LINE = "____________________________________________________________";
+    private final String line = "____________________________________________________________";
 
     /**
      * Prints a decorative line separator.
      */
     public void showLine() {
-        System.out.println(LINE);
+        System.out.println(line);
     }
 
     /**
      * Prints the welcome greeting to the user.
      */
     public void showGreeting() {
-        System.out.println(LINE);
+        System.out.println(line);
         System.out.println("Hello! I'm Vex");
         System.out.println("What can I do for you?");
-        System.out.println(LINE);
+        System.out.println(line);
     }
 
     /**
      * Prints the goodbye message when the application terminates.
      */
     public void showBye() {
-        System.out.println(LINE);
+        System.out.println(line);
         System.out.println("Bye. Hope to see you again soon!");
-        System.out.println(LINE);
+        System.out.println(line);
     }
 
     /**
@@ -44,9 +44,9 @@ public class Ui {
      * @param message The error message to be displayed.
      */
     public void showError(String message) {
-        System.out.println(LINE);
+        System.out.println(line);
         System.out.println(" Oh no! " + message);
-        System.out.println(LINE);
+        System.out.println(line);
     }
 
     /**
@@ -55,12 +55,12 @@ public class Ui {
      * @param tasks The TaskList containing tasks to be shown.
      */
     public void showTaskList(TaskList tasks) {
-        System.out.println(LINE);
+        System.out.println(line);
         System.out.println("Here are the tasks in your list:");
         for (int i = 0; i < tasks.size(); i++) {
             System.out.println((i + 1) + "." + tasks.get(i));
         }
-        System.out.println(LINE);
+        System.out.println(line);
     }
 
     /**
@@ -69,10 +69,10 @@ public class Ui {
      * @param t The task that was marked.
      */
     public void showMarkedTask(Task t) {
-        System.out.println(LINE);
+        System.out.println(line);
         System.out.println("Nice! I've marked this task as done:");
         System.out.println(t);
-        System.out.println(LINE);
+        System.out.println(line);
     }
 
     /**
@@ -81,10 +81,10 @@ public class Ui {
      * @param t The task that was unmarked.
      */
     public void showUnmarkedTask(Task t) {
-        System.out.println(LINE);
+        System.out.println(line);
         System.out.println("OK, I've marked this task as not done yet:");
         System.out.println(t);
-        System.out.println(LINE);
+        System.out.println(line);
     }
 
     /**
@@ -94,11 +94,11 @@ public class Ui {
      * @param size The current number of tasks in the list.
      */
     public void showAddedTask(Task t, int size) {
-        System.out.println(LINE);
+        System.out.println(line);
         System.out.println("Got it. I've added this task:");
         System.out.println("  " + t);
         System.out.println("Now you have " + size + " tasks in the list.");
-        System.out.println(LINE);
+        System.out.println(line);
     }
 
     /**
@@ -108,11 +108,11 @@ public class Ui {
      * @param size The current number of tasks remaining in the list.
      */
     public void showDeletedTask(Task t, int size) {
-        System.out.println(LINE);
+        System.out.println(line);
         System.out.println("Noted. I've removed this task:");
         System.out.println("  " + t);
         System.out.println("Now you have " + size + " tasks in the list.");
-        System.out.println(LINE);
+        System.out.println(line);
     }
 
     /**
@@ -122,7 +122,7 @@ public class Ui {
      * @param queryDate The date for which to filter tasks.
      */
     public void showTasksOnDate(TaskList tasks, LocalDate queryDate) {
-        System.out.println(LINE);
+        System.out.println(line);
         System.out.println("Tasks on " + queryDate.format(DateTimeFormatter.ofPattern("MMM d yyyy")) + ":");
         boolean found = false;
         for (Task t : tasks.getTasks()) {
@@ -134,11 +134,18 @@ public class Ui {
         if (!found) {
             System.out.println("No tasks found on this date.");
         }
-        if (!found)
+        if (!found) {
             System.out.println("No tasks found on this date.");
-        System.out.println(LINE);
+            System.out.println(line);
+        }
     }
 
+    /**
+     * Displays the tasks that match a search keyword.
+     * Prints a message if no matching tasks are found.
+     *
+     * @param matchingTasks The list of tasks that match the search criteria.
+     */
     public void showSearchResults(TaskList matchingTasks) {
         showLine();
         if (matchingTasks.size() == 0) {

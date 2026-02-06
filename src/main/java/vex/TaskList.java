@@ -75,6 +75,13 @@ public class TaskList {
         return tasks;
     }
 
+    /**
+     * Finds and returns tasks whose string representation contains the given
+     * keyword.
+     *
+     * @param keyword The keyword used to search for matching tasks.
+     * @return A TaskList containing all tasks that match the keyword.
+     */
     public TaskList findTasks(String keyword) {
         TaskList matchingTasks = new TaskList();
         for (Task task : tasks) {
@@ -84,4 +91,5 @@ public class TaskList {
         }
         return matchingTasks;
     }
+
 }

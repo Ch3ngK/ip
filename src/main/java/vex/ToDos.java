@@ -1,9 +1,9 @@
 package vex;
 
-/* 
-    * Represents a to-do task that contains only a description.
-    * A to-do task does not have any associated date or time.
-    */
+/**
+ * Represents a to-do task that contains only a description.
+ * A to-do task does not have any associated date or time.
+ */
 public class ToDos extends Task {
 
     /**

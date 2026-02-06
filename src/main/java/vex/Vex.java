@@ -2,8 +2,6 @@ package vex;
 
 import java.util.Scanner;
 
-import java.util.Scanner;
-
 /**
  * Entry point of the Vex chatbot application.
  * Initializes the application's main components and handles the primary control
