@@ -16,6 +16,13 @@ repositories {
 dependencies {
     testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.10.0'
     testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.10.0'
+    // JavaFX modules
+    implementation 'org.openjfx:javafx-controls:17.0.7:win'
+    implementation 'org.openjfx:javafx-fxml:17.0.7:win'
+    implementation 'org.openjfx:javafx-graphics:17.0.7:win'
+    implementation 'org.openjfx:javafx-base:17.0.7:win'
+    implementation 'org.openjfx:javafx-media:17.0.7:win'
+    implementation 'org.openjfx:javafx-web:17.0.7:win'
 }
 
 test {
@@ -33,12 +40,20 @@ test {
 }
 
 application {
-    mainClass.set("vex.Vex")
+    mainClass.set("vex.Launcher")
 }
 
 shadowJar {
     archiveBaseName = "vex"
     archiveClassifier = null
+}
+
+tasks.withType(JavaExec) {
+    // Make sure JavaFX modules are added
+    jvmArgs = [
+        '--module-path', 'C:/Users/Ka Wai Cheng/.gradle/caches/modules-2/files-2.1/org.openjfx/javafx-controls/17.0.7/win/...', // optional, Gradle may handle automatically
+        '--add-modules', 'javafx.controls,javafx.fxml'
+    ]
 }
 
 run{
