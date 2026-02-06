@@ -1,11 +1,12 @@
-package vex; 
+package vex;
 
-import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import vex.ToDos;
 
-public class toDosTest {
+import org.junit.jupiter.api.Test;
+
+public class ToDosTest {
+
     @Test
     public void testToString() {
         ToDos todo = new ToDos("read book");
