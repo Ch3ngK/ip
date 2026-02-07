@@ -60,4 +60,15 @@ public class Vex {
     public static void main(String[] args) {
         new Vex("data/tasks.txt").run();
     }
+
+    /**
+     * Generates a response for GUI input.
+     *
+     * @param input User command
+     * @return Response message
+     */
+    public String getResponse(String input) {
+        return Parser.handleCommandForGui(input, tasks, storage);
+    }
+
 }

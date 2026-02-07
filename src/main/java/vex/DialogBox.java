@@ -1,34 +1,34 @@
-import java.io.IOException;
-import java.util.Collections;
+package vex;
 
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
+import java.io.IOException;
+
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
-import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 
 /**
- * Represents a dialog box consisting of an ImageView to represent the speaker's
- * face
- * and a label containing text from the speaker.
+ * Dialog box consisting of text and an avatar image.
  */
 public class DialogBox extends HBox {
+
     @FXML
     private Label dialog;
+
     @FXML
     private ImageView displayPicture;
 
     private DialogBox(String text, Image img) {
+        FXMLLoader loader = new FXMLLoader(
+                getClass().getResource("/view/DialogBox.fxml"));
+        loader.setRoot(this);
+        loader.setController(this);
+
         try {
-            FXMLLoader fxmlLoader = new FXMLLoader(MainWindow.class.getResource("/view/DialogBox.fxml"));
-            fxmlLoader.setController(this);
-            fxmlLoader.setRoot(this);
-            fxmlLoader.load();
+            loader.load();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -37,24 +37,34 @@ public class DialogBox extends HBox {
         displayPicture.setImage(img);
     }
 
-    /**
-     * Flips the dialog box such that the ImageView is on the left and text on the
-     * right.
-     */
-    private void flip() {
-        ObservableList<Node> tmp = FXCollections.observableArrayList(this.getChildren());
-        Collections.reverse(tmp);
-        getChildren().setAll(tmp);
-        setAlignment(Pos.TOP_LEFT);
-    }
-
+    /** User dialog: text left, image right */
     public static DialogBox getUserDialog(String text, Image img) {
-        return new DialogBox(text, img);
-    }
+        DialogBox db = new DialogBox(text, img);
 
-    public static DialogBox getDukeDialog(String text, Image img) {
-        var db = new DialogBox(text, img);
-        db.flip();
+        db.getStyleClass().add("dialog-user");
+        db.dialog.getStyleClass().add("dialog-label");
+
+        db.getChildren().setAll(db.dialog, db.displayPicture);
+        db.setAlignment(Pos.TOP_RIGHT);
+
         return db;
     }
+
+    /** Vex dialog: image left, text right */
+    public static DialogBox getVexDialog(String text, Image img) {
+        DialogBox db = new DialogBox(text, img);
+
+        db.getStyleClass().add("dialog-vex");
+        db.dialog.getStyleClass().add("dialog-label");
+
+        db.getChildren().setAll(db.displayPicture, db.dialog);
+        db.setAlignment(Pos.TOP_LEFT);
+
+        return db;
+    }
+
+    public Label getDialogLabel() {
+        return dialog;
+    }
+
 }

@@ -1,0 +1,92 @@
+/* =======================
+   GLOBAL
+   ======================= */
+.root {
+    -fx-font-family: "Segoe UI", "Arial";
+}
+
+/* =======================
+   BACKGROUND
+   ======================= */
+#rootPane {
+    -fx-background-color: #0b0f14;
+    -fx-background-image: url("/images/dota_bg.jpg");
+    -fx-background-size: cover;
+    -fx-background-position: center center;
+}
+
+/* =======================
+   SCROLLPANE (REMOVE WHITE)
+   ======================= */
+.scroll-pane {
+    -fx-background-color: transparent;
+}
+
+.scroll-pane>.viewport {
+    -fx-background-color: transparent;
+}
+
+/* =======================
+   DIALOG CONTAINER
+   ======================= */
+#dialogContainer {
+    -fx-background-color: transparent;
+    -fx-padding: 10;
+}
+
+/* =======================
+   CHAT TEXT
+   ======================= */
+.dialog-label {
+    -fx-text-fill: #ffffff;
+    -fx-wrap-text: true;
+    -fx-font-size: 14px;
+}
+
+/* =======================
+   USER BUBBLE (GREEN)
+   ======================= */
+.dialog-user {
+    -fx-background-color: linear-gradient(#2ecc71, #145a32);
+    -fx-background-radius: 16;
+    -fx-padding: 10 14;
+    -fx-effect: dropshadow(gaussian, rgba(46, 204, 113, 0.5), 8, 0, 0, 0);
+}
+
+/* =======================
+   VEX BUBBLE (RED)
+   ======================= */
+.dialog-vex {
+    -fx-background-color: linear-gradient(#c0392b, #641e16);
+    -fx-background-radius: 16;
+    -fx-padding: 10 14;
+    -fx-effect: dropshadow(gaussian, rgba(192, 57, 43, 0.6), 10, 0, 0, 0);
+}
+
+/* =======================
+   INPUT BAR
+   ======================= */
+.text-field {
+    -fx-background-color: #1c1f26;
+    -fx-text-fill: #ecf0f1;
+    -fx-prompt-text-fill: #fbfcfc;
+    -fx-background-radius: 8;
+    -fx-border-color: #922b21;
+    -fx-border-radius: 8;
+}
+
+/* =======================
+   SEND BUTTON
+   ======================= */
+.button {
+    -fx-background-color: linear-gradient(#922b21, #641e16);
+    -fx-text-fill: #f5cba7;
+    -fx-font-weight: bold;
+    -fx-background-radius: 8;
+    -fx-border-color: #e74c3c;
+    -fx-border-radius: 8;
+}
+
+.button:hover {
+    -fx-background-color: linear-gradient(#e74c3c, #922b21);
+}
