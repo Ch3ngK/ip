@@ -200,4 +200,21 @@ public class Parser {
         TaskList matchingTasks = tasks.findTasks(keyword);
         ui.showSearchResults(matchingTasks);
     }
+
+    /**
+     * Handles user commands for GUI usage.
+     * Returns the response as a String instead of printing to console.
+     *
+     * @param input   User input
+     * @param tasks   Task list
+     * @param storage Storage manager
+     * @return Response string for GUI
+     */
+    public static String handleCommandForGui(String input, TaskList tasks, Storage storage) {
+        Ui ui = new Ui();
+        ui.clearMessages();
+        handleCommand(input, tasks, ui, storage);
+        return ui.getAllMessages();
+    }
+
 }
