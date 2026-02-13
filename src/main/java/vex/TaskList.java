@@ -76,19 +76,27 @@ public class TaskList {
     }
 
     /**
-     * Finds and returns tasks whose string representation contains the given
-     * keyword.
+     * Returns a TaskList containing tasks whose string representation
+     * contains the specified keyword.
      *
-     * @param keyword The keyword used to search for matching tasks.
-     * @return A TaskList containing all tasks that match the keyword.
+     * This method uses the Streams API to filter matching tasks
+     * in a declarative manner.
+     *
+     * @param keyword The keyword used to search for matching tasks
+     * @return A TaskList containing all matching tasks
+     * @throws IllegalArgumentException if keyword is null
      */
     public TaskList findTasks(String keyword) {
-        TaskList matchingTasks = new TaskList();
-        for (Task task : tasks) {
-            if (task.toString().contains(keyword)) {
-                matchingTasks.add(task);
-            }
+        if (keyword == null) {
+            throw new IllegalArgumentException("Keyword must not be null.");
         }
+
+        TaskList matchingTasks = new TaskList();
+
+        tasks.stream()
+                .filter(task -> task.toString().contains(keyword))
+                .forEach(matchingTasks::add);
+
         return matchingTasks;
     }
 
