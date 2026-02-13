@@ -17,25 +17,36 @@ public class Storage {
     private final Path filePath;
 
     /**
-     * Initializes a Storage object with the specified file path.
-     *
-     * @param filePathString The string path of the file to store data.
+     * * Initializes a Storage object with the specified file path. * * @param
+     * filePathString The string path of the file to store data.
      */
     public Storage(String filePathString) {
+        assert filePathString != null : "file path string should not be null";
         this.filePath = Paths.get(filePathString);
+        assert this.filePath != null : "filePath should not be null after creation";
     }
 
     /**
-     * Saves the list of tasks to the hard disk.
-     *
-     * @param tasks The list of Task objects to be saved.
+     * * Saves the list of tasks to the hard disk. * * @param tasks The list of Task
+     * objects to be saved.
      */
     public void save(List<Task> tasks) {
+
+        // Programmer assumption
+        assert tasks != null : "tasks list should not be null";
+
         try {
             Files.createDirectories(filePath.getParent());
 
             try (BufferedWriter writer = Files.newBufferedWriter(filePath)) {
+
                 for (Task t : tasks) {
+
+                    // Each task must exist and serialize correctly
+                    assert t != null : "Task in list should not be null";
+                    assert t.toFileString() != null
+                            : "toFileString() should not return null";
+
                     writer.write(t.toFileString());
                     writer.newLine();
                 }
@@ -46,13 +57,12 @@ public class Storage {
     }
 
     /**
-     * Loads the tasks from the hard disk and returns them as an ArrayList.
-     * If the file does not exist, a new file is created and an empty list is
-     * returned.
-     *
-     * @return An ArrayList of tasks loaded from the file.
+     * * Loads the tasks from the hard disk and returns them as an ArrayList. * If
+     * the file does not exist, a new file is created and an empty list is *
+     * returned. * * @return An ArrayList of tasks loaded from the file.
      */
     public ArrayList<Task> load() {
+
         ArrayList<Task> tasks = new ArrayList<>();
 
         try {
@@ -64,13 +74,22 @@ public class Storage {
             }
 
             List<String> lines = Files.readAllLines(filePath);
+
+            assert lines != null : "readAllLines should not return null";
+
             for (String line : lines) {
+
+                assert line != null : "line read from file should not be null";
+
                 try {
-                    tasks.add(parseTask(line));
+                    Task parsed = parseTask(line);
+                    assert parsed != null : "parseTask should not return null";
+                    tasks.add(parsed);
                 } catch (Exception e) {
                     System.out.println("Ignoring corrupted data: " + line);
                 }
             }
+
         } catch (IOException e) {
             System.out.println("Error loading tasks from file.");
         }
@@ -79,34 +98,52 @@ public class Storage {
     }
 
     /**
-     * Parses a single line from the save file into a Task object.
-     *
-     * @param line The string line representing a task in the save file.
-     * @return The corresponding Task object (Todo, Deadline, or Event).
-     * @throws IllegalArgumentException If the line format is invalid.
+     * * Parses a single line from the save file into a Task object. * * @param line
+     * The string line representing a task in the save file. * @return The
+     * corresponding Task object (Todo, Deadline, or Event). * @throws
+     * IllegalArgumentException If the line format is invalid.
      */
     private Task parseTask(String line) {
+
+        assert line != null : "line passed to parseTask should not be null";
+
         String[] parts = line.split(" \\| ");
 
-        if (parts.length < 3) {
-            throw new IllegalArgumentException();
-        }
+        // File format assumption
+        assert parts.length >= 3
+                : "Saved task line must have at least 3 parts";
 
         String type = parts[0];
         boolean done = parts[1].equals("1");
         String desc = parts[2];
 
+        assert type != null : "Task type should not be null";
+        assert desc != null : "Task description should not be null";
+
         Task task;
 
         if (type.equals("T")) {
+
             task = new ToDos(desc);
+
         } else if (type.equals("D")) {
+
+            assert parts.length >= 4
+                    : "Deadline task must contain due date";
+
             LocalDateTime byDate = LocalDateTime.parse(parts[3]);
             task = new Deadlines(desc, byDate);
+
         } else if (type.equals("E")) {
+
+            assert parts.length >= 5
+                    : "Event task must contain from and to dates";
+
             LocalDateTime fromDate = LocalDateTime.parse(parts[3]);
             LocalDateTime toDate = LocalDateTime.parse(parts[4]);
+
             task = new Events(desc, fromDate, toDate);
+
         } else {
             throw new IllegalArgumentException();
         }
@@ -114,6 +151,8 @@ public class Storage {
         if (done) {
             task.markAsDone();
         }
+
+        assert task != null : "parseTask must return a valid task";
 
         return task;
     }
