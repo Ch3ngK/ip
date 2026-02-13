@@ -1,6 +1,8 @@
 package vex;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Represents a list of tasks.
@@ -8,15 +10,21 @@ import java.util.ArrayList;
  * retrieving tasks.
  */
 public class TaskList {
-    private ArrayList<Task> tasks;
+
+    private final ArrayList<Task> tasks;
 
     /**
      * Constructs a TaskList with an existing list of tasks.
      *
-     * @param tasks The initial list of tasks.
+     * @param tasks The initial list of tasks
+     * @throws IllegalArgumentException If tasks is null
      */
     public TaskList(ArrayList<Task> tasks) {
+        if (tasks == null) {
+            throw new IllegalArgumentException("tasks must not be null");
+        }
         this.tasks = tasks;
+        assert this.tasks != null : "tasks list should not be null after initialization";
     }
 
     /**
@@ -24,72 +32,82 @@ public class TaskList {
      */
     public TaskList() {
         this.tasks = new ArrayList<>();
+        assert this.tasks != null : "tasks list should not be null after initialization";
     }
 
     /**
      * Adds a task to the list.
      *
-     * @param t The task to be added.
+     * @param task The task to be added
+     * @throws IllegalArgumentException If task is null
      */
-    public void add(Task t) {
-        tasks.add(t);
+    public void add(Task task) {
+        if (task == null) {
+            throw new IllegalArgumentException("task must not be null");
+        }
+        tasks.add(task);
     }
 
     /**
      * Deletes a task from the list at the specified index.
      *
-     * @param index The index of the task to be removed.
-     * @return The task that was removed.
-     * @throws IndexOutOfBoundsException If the index is out of range.
+     * @param index The index of the task to be removed
+     * @return The task that was removed
+     * @throws IndexOutOfBoundsException If the index is out of range
      */
     public Task delete(int index) {
-        return tasks.remove(index);
+        assert index >= 0 && index < tasks.size() : "delete index out of range: " + index;
+        Task removed = tasks.remove(index);
+        assert removed != null : "removed task should not be null";
+        return removed;
     }
 
     /**
      * Retrieves a task from the list at the specified index.
      *
-     * @param index The index of the task to retrieve.
-     * @return The task at the specified index.
-     * @throws IndexOutOfBoundsException If the index is out of range.
+     * @param index The index of the task to retrieve
+     * @return The task at the specified index
+     * @throws IndexOutOfBoundsException If the index is out of range
      */
     public Task get(int index) {
-        return tasks.get(index);
+        assert index >= 0 && index < tasks.size() : "get index out of range: " + index;
+        Task task = tasks.get(index);
+        assert task != null : "stored task should not be null";
+        return task;
     }
 
     /**
      * Returns the number of tasks in the list.
      *
-     * @return The size of the task list.
+     * @return The size of the task list
      */
     public int size() {
+        assert tasks != null : "tasks list should not be null";
         return tasks.size();
     }
 
     /**
-     * Returns the underlying list of tasks.
+     * Returns an unmodifiable view of the underlying list of tasks.
      *
-     * @return An ArrayList containing all tasks.
+     * @return A read-only view containing all tasks
      */
-    public ArrayList<Task> getTasks() {
-        return tasks;
+    public List<Task> getTasks() {
+        return Collections.unmodifiableList(tasks);
     }
 
     /**
-     * Returns a TaskList containing tasks whose string representation
-     * contains the specified keyword.
-     *
-     * This method uses the Streams API to filter matching tasks
-     * in a declarative manner.
+     * Finds and returns tasks whose string representation contains the given
+     * keyword.
      *
      * @param keyword The keyword used to search for matching tasks
-     * @return A TaskList containing all matching tasks
-     * @throws IllegalArgumentException if keyword is null
+     * @return A TaskList containing all tasks that match the keyword
+     * @throws IllegalArgumentException If keyword is null
      */
     public TaskList findTasks(String keyword) {
         if (keyword == null) {
-            throw new IllegalArgumentException("Keyword must not be null.");
+            throw new IllegalArgumentException("keyword must not be null");
         }
+        assert tasks != null : "tasks list should not be null";
 
         TaskList matchingTasks = new TaskList();
 
@@ -99,5 +117,4 @@ public class TaskList {
 
         return matchingTasks;
     }
-
 }

@@ -9,18 +9,35 @@ import java.time.format.DateTimeFormatter;
  * An event has a description, a start time, and an end time.
  */
 public class Events extends Task {
-    protected LocalDateTime from;
-    protected LocalDateTime to;
+
+    /** Formatter used for displaying event times. */
+    private static final DateTimeFormatter DISPLAY_FORMAT = DateTimeFormatter.ofPattern("MMM d yyyy HH:mm");
+
+    /** Start date and time of the event. */
+    private final LocalDateTime from;
+
+    /** End date and time of the event. */
+    private final LocalDateTime to;
 
     /**
-     * Initializes a new Events task with the specified description and time range.
+     * Constructs an Event task with a time range.
      *
-     * @param description The description of the event.
-     * @param from        The start date and time of the event.
-     * @param to          The end date and time of the event.
+     * @param description Task description
+     * @param from        Start date and time
+     * @param to          End date and time
+     * @throws IllegalArgumentException if dates are null or invalid
      */
     public Events(String description, LocalDateTime from, LocalDateTime to) {
         super(description);
+
+        if (from == null || to == null) {
+            throw new IllegalArgumentException("Event dates must not be null.");
+        }
+
+        if (from.isAfter(to)) {
+            throw new IllegalArgumentException("Event start time cannot be after end time.");
+        }
+
         this.from = from;
         this.to = to;
     }
@@ -28,7 +45,7 @@ public class Events extends Task {
     /**
      * Returns the start time of the event.
      *
-     * @return The LocalDateTime representing the start of the event.
+     * @return Start LocalDateTime
      */
     public LocalDateTime getFrom() {
         return from;
@@ -37,51 +54,55 @@ public class Events extends Task {
     /**
      * Returns the end time of the event.
      *
-     * @return The LocalDateTime representing the end of the event.
+     * @return End LocalDateTime
      */
     public LocalDateTime getTo() {
         return to;
     }
 
     /**
-     * Returns a string representation of the event task, including the
-     * status icon, description, and the formatted start and end times.
+     * Returns a formatted string representation of the event.
      *
-     * @return A formatted string representing the event.
+     * @return User-friendly event string
      */
-
     @Override
     public String toString() {
-        DateTimeFormatter display = DateTimeFormatter.ofPattern("MMM d yyyy HH:mm");
-        return "[E]" + super.toString() + " (from: " + from.format(display)
-                + " to: " + to.format(display) + ")";
+        return "[E]" + super.toString()
+                + " (from: " + from.format(DISPLAY_FORMAT)
+                + " to: " + to.format(DISPLAY_FORMAT) + ")";
     }
 
     /**
-     * Formats the event task into a string suitable for saving to a file.
+     * Converts the event into a format suitable for file storage.
      *
-     * @return A pipe-separated string representing the event task for storage.
+     * @return Pipe-separated save string
      */
     @Override
     public String toFileString() {
         return String.format("E | %d | %s | %s | %s",
-                isDone ? 1 : 0,
-                description,
+                isDone() ? 1 : 0,
+                getDescription(),
                 from,
                 to);
     }
 
     /**
-     * Checks if the event occurs on or spans across the specified date.
+     * Checks whether the event occurs on the given date.
+     * An event occurs on a date if that date is between the start and end dates
+     * (inclusive).
      *
-     * @param date The date to check.
-     * @return true if the date is the start date, end date, or falls between them.
+     * @param date The date to check
+     * @return true if the event spans the given date
      */
     @Override
     public boolean occursOn(LocalDate date) {
+        if (date == null) {
+            return false;
+        }
+
         LocalDate start = from.toLocalDate();
         LocalDate end = to.toLocalDate();
-        return (date.isEqual(start) || date.isEqual(end))
-                || (date.isAfter(start) && date.isBefore(end));
+
+        return !date.isBefore(start) && !date.isAfter(end);
     }
 }

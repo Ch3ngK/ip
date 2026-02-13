@@ -10,62 +10,74 @@ import java.time.format.DateTimeFormatter;
  * completed.
  */
 public class Deadlines extends Task {
-    private LocalDateTime by;
+
+    /** Formatter used for displaying deadlines. */
+    private static final DateTimeFormatter DISPLAY_FORMAT = DateTimeFormatter.ofPattern("MMM d yyyy HH:mm");
+
+    /** The date and time by which the task must be completed. */
+    private final LocalDateTime by;
 
     /**
-     * Initializes a new Deadlines task with the specified description and deadline.
+     * Constructs a Deadline task with the specified description and due date.
      *
-     * @param description The description of the task.
-     * @param by          The date and time the task is due.
+     * @param description The task description
+     * @param by          The deadline date and time
+     * @throws IllegalArgumentException If by is null
      */
     public Deadlines(String description, LocalDateTime by) {
         super(description);
+
+        if (by == null) {
+            throw new IllegalArgumentException("Deadline date must not be null.");
+        }
+
         this.by = by;
     }
 
     /**
-     * Returns the deadline of the task.
+     * Returns the deadline date and time.
      *
-     * @return The LocalDateTime representing when the task is due.
+     * @return The LocalDateTime representing when the task is due
      */
-
     public LocalDateTime getBy() {
         return by;
     }
 
     /**
-     * Returns a string representation of the deadline task, including the
-     * status icon, description, and formatted deadline date.
+     * Returns a formatted string representation of the deadline task.
      *
-     * @return A formatted string representing the deadline.
+     * @return A user-friendly string showing task status and deadline
      */
     @Override
     public String toString() {
-        DateTimeFormatter display = DateTimeFormatter.ofPattern("MMM d yyyy HH:mm");
-        return "[D]" + super.toString() + " (by: " + by.format(display) + ")";
+        return "[D]" + super.toString()
+                + " (by: " + by.format(DISPLAY_FORMAT) + ")";
     }
 
     /**
-     * Formats the deadline task into a string suitable for saving to a file.
+     * Converts the deadline task into a format suitable for file storage.
      *
-     * @return A pipe-separated string representing the deadline task for storage.
+     * @return A pipe-separated string representing the task
      */
     @Override
     public String toFileString() {
         return String.format("D | %d | %s | %s",
-                isDone ? 1 : 0,
-                description,
+                isDone() ? 1 : 0,
+                getDescription(),
                 by);
     }
 
     /**
-     * Checks if the deadline falls on the specified date.
+     * Checks whether this deadline occurs on the specified date.
      *
-     * @param date The date to compare against.
-     * @return true if the deadline date matches the input date, false otherwise.
+     * @param date The date to compare against
+     * @return true if the deadline falls on the given date
      */
     @Override
     public boolean occursOn(LocalDate date) {
-        return this.by.toLocalDate().equals(date);
+        if (date == null) {
+            return false;
+        }
+        return by.toLocalDate().equals(date);
     }
 }

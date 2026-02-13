@@ -8,25 +8,38 @@ import java.util.Scanner;
  * flow.
  */
 public class Vex {
-    private Storage storage;
-    private TaskList tasks;
-    private Ui ui;
+
+    private static final String DEFAULT_SAVE_PATH = "data/tasks.txt";
+    private static final String COMMAND_BYE = "bye";
+
+    private final Storage storage;
+    private final TaskList tasks;
+    private final Ui ui;
 
     /**
      * Initializes a new Vex instance.
-     * Sets up the UI, storage, and attempts to load existing tasks from the
+     * Sets up the UI and storage, and attempts to load existing tasks from the
      * specified file.
      *
      * @param filePath The path to the file where tasks are stored.
      */
     public Vex(String filePath) {
-        ui = new Ui();
-        storage = new Storage(filePath);
+        this.ui = new Ui();
+        this.storage = new Storage(filePath);
+        this.tasks = loadTasksOrDefault();
+    }
+
+    /**
+     * Loads tasks from storage. If loading fails, returns an empty TaskList.
+     *
+     * @return Loaded TaskList, or an empty TaskList if loading fails.
+     */
+    private TaskList loadTasksOrDefault() {
         try {
-            tasks = new TaskList(storage.load());
-        } catch (Exception e) {
+            return new TaskList(storage.load());
+        } catch (RuntimeException e) {
             ui.showError("Loading error.");
-            tasks = new TaskList();
+            return new TaskList();
         }
     }
 
@@ -37,19 +50,23 @@ public class Vex {
      */
     public void run() {
         ui.showGreeting();
-        Scanner sc = new Scanner(System.in);
-        boolean isExit = false;
 
-        while (!isExit) {
-            String fullCommand = sc.nextLine().trim();
-            if (fullCommand.equalsIgnoreCase("bye")) {
-                ui.showBye();
-                isExit = true;
-            } else if (!fullCommand.isEmpty()) {
+        try (Scanner scanner = new Scanner(System.in)) {
+            while (true) {
+                String fullCommand = scanner.nextLine().trim();
+
+                if (fullCommand.isEmpty()) {
+                    continue;
+                }
+
+                if (fullCommand.equalsIgnoreCase(COMMAND_BYE)) {
+                    ui.showBye();
+                    return;
+                }
+
                 Parser.handleCommand(fullCommand, tasks, ui, storage);
             }
         }
-        sc.close();
     }
 
     /**
@@ -58,7 +75,7 @@ public class Vex {
      * @param args Command line arguments (not used).
      */
     public static void main(String[] args) {
-        new Vex("data/tasks.txt").run();
+        new Vex(DEFAULT_SAVE_PATH).run();
     }
 
     /**
@@ -70,5 +87,4 @@ public class Vex {
     public String getResponse(String input) {
         return Parser.handleCommandForGui(input, tasks, storage);
     }
-
 }
