@@ -100,4 +100,16 @@ public class Task {
     public boolean occursOn(LocalDate date) {
         return false;
     }
+
+    /**
+     * Checks whether this task is due within the given date range.
+     * The default implementation returns false.
+     *
+     * @param startDate Start of the date range (inclusive)
+     * @param days      Number of days in the range
+     * @return false for tasks without date information
+     */
+    public boolean isDueWithin(LocalDate todayDate, int days) {
+        return false;
+    }
 }

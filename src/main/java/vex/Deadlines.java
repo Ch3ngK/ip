@@ -80,4 +80,18 @@ public class Deadlines extends Task {
         }
         return by.toLocalDate().equals(date);
     }
+
+    /**
+     * Checks whether this deadline is due within the specified date range.
+     *
+     * @param today The starting date
+     * @param days  The number of days from today to check
+     * @return true if the deadline is within the range
+     */
+    @Override
+    public boolean isDueWithin(LocalDate todayDate, int days) {
+        LocalDate dueDate = by.toLocalDate();
+        return (!dueDate.isBefore(todayDate)) &&
+                (!dueDate.isAfter(todayDate.plusDays(days)));
+    }
 }

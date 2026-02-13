@@ -105,4 +105,10 @@ public class Events extends Task {
 
         return !date.isBefore(start) && !date.isAfter(end);
     }
+
+    @Override
+    public boolean isDueWithin(LocalDate todayDate, int days) {
+        LocalDate startDate = from.toLocalDate();
+        return (!startDate.isBefore(todayDate)) && (!startDate.isAfter(todayDate.plusDays(days)));
+    }
 }

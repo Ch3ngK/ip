@@ -167,4 +167,22 @@ public class Ui {
     public void clearMessages() {
         messages.clear();
     }
+
+    /**
+     * Displays tasks that are due/starting within the next given number of days.
+     *
+     * @param reminders TaskList containing reminder tasks
+     * @param days      Number of days to look ahead
+     */
+    public void showReminders(TaskList reminders, int days) {
+        if (reminders.size() == 0) {
+            showMessage("No upcoming tasks in the next " + days + " day(s).");
+        } else {
+            showMessage("Here are your upcoming tasks in the next " + days + " day(s):");
+            for (int i = 0; i < reminders.size(); i++) {
+                showMessage(" " + (i + 1) + "." + reminders.get(i));
+            }
+        }
+    }
+
 }

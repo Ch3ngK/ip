@@ -1,5 +1,6 @@
 package vex;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -117,4 +118,23 @@ public class TaskList {
 
         return matchingTasks;
     }
+
+    /**
+     * Gets tasks that are due within the specified number of days from today.
+     *
+     * @param days
+     * @return
+     */
+    public TaskList getReminders(int days) {
+        if (days < 0)
+            throw new IllegalArgumentException("days must be non-negative!");
+        LocalDate today = LocalDate.now();
+
+        TaskList result = new TaskList();
+        tasks.stream()
+                .filter(t -> t.isDueWithin(today, days))
+                .forEach(result::add);
+        return result;
+    }
+
 }
