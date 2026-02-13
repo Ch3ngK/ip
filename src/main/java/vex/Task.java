@@ -7,86 +7,95 @@ import java.time.LocalDate;
  * A task contains a description and a completion status.
  */
 public class Task {
-    protected String description;
-    protected boolean isDone;
+
+    /** Description of the task. */
+    private final String description;
+
+    /** Whether the task is marked as completed. */
+    private boolean isDone;
 
     /**
-     * Initializes a new Task with the given description.
-     * The task is set to not done by default.
+     * Constructs a Task with the given description.
+     * The task is initially marked as not done.
      *
-     * @param description The description of the task.
+     * @param description Description of the task
+     * @throws IllegalArgumentException If description is null or blank
      */
     public Task(String description) {
+        if (description == null || description.isBlank()) {
+            throw new IllegalArgumentException("Task description must not be empty.");
+        }
         this.description = description;
         this.isDone = false;
     }
 
     /**
+     * Returns the task description.
+     *
+     * @return Task description
+     */
+    protected String getDescription() {
+        return description;
+    }
+
+    /**
+     * Returns whether the task is marked as done.
+     *
+     * @return true if completed
+     */
+    protected boolean isDone() {
+        return isDone;
+    }
+
+    /**
      * Returns the status icon based on whether the task is done.
      *
-     * @return "X" if the task is done, otherwise a space " ".
+     * @return "X" if the task is done, otherwise " "
      */
     public String getStatusIcon() {
-        return (isDone ? "X" : " ");
-    }
-
-    /**
-     * Sets the task status to completed.
-     */
-    public void complete() {
-        this.isDone = true;
-    }
-
-    /**
-     * Sets the task status to incomplete.
-     */
-    public void incomplete() {
-        this.isDone = false;
-    }
-
-    /**
-     * Returns a string representation of the task, including its status and
-     * description.
-     *
-     * @return A formatted string of the task.
-     */
-    @Override
-    public String toString() {
-        return "[" + getStatusIcon() + "] " + this.description;
+        return isDone ? "X" : " ";
     }
 
     /**
      * Marks the task as done.
      */
     public void markAsDone() {
-        this.complete();
+        isDone = true;
     }
 
     /**
-     * Marks the task as undone.
+     * Marks the task as not done.
      */
     public void markAsUndone() {
-        this.incomplete();
+        isDone = false;
     }
 
     /**
-     * Formats the task into a string suitable for saving to a file.
-     * Base implementation defaults to a Todo-style format.
+     * Returns a user-friendly string representation of the task.
      *
-     * @return A formatted string for file storage.
+     * @return Formatted task string
+     */
+    @Override
+    public String toString() {
+        return "[" + getStatusIcon() + "] " + description;
+    }
+
+    /**
+     * Converts this task into a format suitable for file storage.
+     * Subclasses should override if they store additional fields.
+     *
+     * @return Pipe-separated save string
      */
     public String toFileString() {
-        return String.format("T | %d | %s",
-                isDone ? 1 : 0,
-                description);
+        return String.format("T | %d | %s", isDone ? 1 : 0, description);
     }
 
     /**
-     * Checks if the task occurs on a specific date.
-     * Base implementation returns false; intended to be overridden by subclasses.
+     * Checks whether this task occurs on the given date.
+     * The default implementation returns false.
      *
-     * @param date The date to check against.
-     * @return false by default.
+     * @param date Date to check
+     * @return false for tasks without date information
      */
     public boolean occursOn(LocalDate date) {
         return false;
