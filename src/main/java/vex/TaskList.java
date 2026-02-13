@@ -1,6 +1,8 @@
 package vex;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Represents a list of tasks.
@@ -8,7 +10,7 @@ import java.util.ArrayList;
  * retrieving tasks.
  */
 public class TaskList {
-    private ArrayList<Task> tasks;
+    private final ArrayList<Task> tasks;
 
     /**
      * Constructs a TaskList with an existing list of tasks.
@@ -16,6 +18,9 @@ public class TaskList {
      * @param tasks The initial list of tasks.
      */
     public TaskList(ArrayList<Task> tasks) {
+        if (tasks == null) {
+            throw new IllegalArgumentException("tasks must not be null");
+        }
         this.tasks = tasks;
     }
 
@@ -29,10 +34,13 @@ public class TaskList {
     /**
      * Adds a task to the list.
      *
-     * @param t The task to be added.
+     * @param task The task to be added.
      */
-    public void add(Task t) {
-        tasks.add(t);
+    public void add(Task task) {
+        if (task == null) {
+            throw new IllegalArgumentException("task must not be null");
+        }
+        tasks.add(task);
     }
 
     /**
@@ -67,12 +75,12 @@ public class TaskList {
     }
 
     /**
-     * Returns the underlying list of tasks.
+     * Returns an unmodifiable view of the underlying list of tasks.
      *
-     * @return An ArrayList containing all tasks.
+     * @return A read-only view containing all tasks.
      */
-    public ArrayList<Task> getTasks() {
-        return tasks;
+    public List<Task> getTasks() {
+        return Collections.unmodifiableList(tasks);
     }
 
     /**
@@ -83,6 +91,10 @@ public class TaskList {
      * @return A TaskList containing all tasks that match the keyword.
      */
     public TaskList findTasks(String keyword) {
+        if (keyword == null) {
+            throw new IllegalArgumentException("keyword must not be null");
+        }
+
         TaskList matchingTasks = new TaskList();
         for (Task task : tasks) {
             if (task.toString().contains(keyword)) {
@@ -91,5 +103,4 @@ public class TaskList {
         }
         return matchingTasks;
     }
-
 }

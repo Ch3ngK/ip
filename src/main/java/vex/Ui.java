@@ -12,8 +12,6 @@ import java.util.List;
  * Also stores messages for GUI integration.
  */
 public class Ui {
-    /** A decorative line used to separate message blocks. */
-    private final String line = "____________________________________________________________";
 
     /** Stores messages for GUI output. */
     private final List<String> messages;
@@ -23,18 +21,17 @@ public class Ui {
      * Initializes the messages list used to store output for GUI purposes.
      */
     public Ui() {
-        messages = new ArrayList<>();
+        this.messages = new ArrayList<>();
     }
 
     /**
      * Adds a message to the message list and prints it to the console.
-     * This method is used to centralize output handling for both console and GUI.
      *
      * @param message The message to display.
      */
     private void showMessage(String message) {
-        messages.add(message); // store for GUI
-        System.out.println(message); // keep console output
+        messages.add(message);
+        System.out.println(message);
     }
 
     /**
@@ -46,24 +43,15 @@ public class Ui {
         return String.join("\n", messages);
     }
 
-    /** Prints a decorative line separator. */
-    public void showLine() {
-        showMessage(line);
-    }
-
     /** Prints the welcome greeting to the user. */
     public void showGreeting() {
-        showMessage(line);
-        showMessage("Hello! I'm Vex");
+        showMessage("Hello! I'm Vex.");
         showMessage("What can I do for you?");
-        showMessage(line);
     }
 
     /** Prints the goodbye message when the application terminates. */
     public void showBye() {
-        showMessage(line);
         showMessage("Bye. Hope to see you again soon!");
-        showMessage(line);
     }
 
     /**
@@ -72,9 +60,7 @@ public class Ui {
      * @param message The error message to display.
      */
     public void showError(String message) {
-        showMessage(line);
-        showMessage(" Oh no! " + message);
-        showMessage(line);
+        showMessage("Error: " + message);
     }
 
     /**
@@ -83,64 +69,54 @@ public class Ui {
      * @param tasks The TaskList containing tasks to show.
      */
     public void showTaskList(TaskList tasks) {
-        showMessage(line);
         showMessage("Here are the tasks in your list:");
         for (int i = 0; i < tasks.size(); i++) {
-            showMessage((i + 1) + "." + tasks.get(i));
+            showMessage((i + 1) + ". " + tasks.get(i));
         }
-        showMessage(line);
     }
 
     /**
-     * Confirms to the user that a task has been marked as completed.
+     * Confirms that a task has been marked as completed.
      *
-     * @param t The task that was marked.
+     * @param task The task that was marked.
      */
-    public void showMarkedTask(Task t) {
-        showMessage(line);
+    public void showMarkedTask(Task task) {
         showMessage("Nice! I've marked this task as done:");
-        showMessage(t.toString());
-        showMessage(line);
+        showMessage(task.toString());
     }
 
     /**
-     * Confirms to the user that a task has been marked as incomplete.
+     * Confirms that a task has been marked as incomplete.
      *
-     * @param t The task that was unmarked.
+     * @param task The task that was unmarked.
      */
-    public void showUnmarkedTask(Task t) {
-        showMessage(line);
+    public void showUnmarkedTask(Task task) {
         showMessage("OK, I've marked this task as not done yet:");
-        showMessage(t.toString());
-        showMessage(line);
+        showMessage(task.toString());
     }
 
     /**
      * Confirms that a task has been successfully added and shows the new total.
      *
-     * @param t    The task that was added.
+     * @param task The task that was added.
      * @param size The current number of tasks in the list.
      */
-    public void showAddedTask(Task t, int size) {
-        showMessage(line);
+    public void showAddedTask(Task task, int size) {
         showMessage("Got it. I've added this task:");
-        showMessage("  " + t);
+        showMessage("  " + task);
         showMessage("Now you have " + size + " tasks in the list.");
-        showMessage(line);
     }
 
     /**
      * Confirms that a task has been removed and shows the new total.
      *
-     * @param t    The task that was removed.
-     * @param size The current number of tasks remaining in the list.
+     * @param task The task that was removed.
+     * @param size The current number of tasks remaining.
      */
-    public void showDeletedTask(Task t, int size) {
-        showMessage(line);
+    public void showDeletedTask(Task task, int size) {
         showMessage("Noted. I've removed this task:");
-        showMessage("  " + t);
+        showMessage("  " + task);
         showMessage("Now you have " + size + " tasks in the list.");
-        showMessage(line);
     }
 
     /**
@@ -150,38 +126,38 @@ public class Ui {
      * @param queryDate The date for which to filter tasks.
      */
     public void showTasksOnDate(TaskList tasks, LocalDate queryDate) {
-        showMessage(line);
-        showMessage("Tasks on " + queryDate.format(DateTimeFormatter.ofPattern("MMM d yyyy")) + ":");
+        String formattedDate = queryDate.format(DateTimeFormatter.ofPattern("MMM d yyyy"));
+
+        showMessage("Tasks on " + formattedDate + ":");
+
         boolean found = false;
-        for (Task t : tasks.getTasks()) {
-            if (t.occursOn(queryDate)) {
-                showMessage(t.toString());
+        for (Task task : tasks.getTasks()) {
+            if (task.occursOn(queryDate)) {
+                showMessage(task.toString());
                 found = true;
             }
         }
+
         if (!found) {
             showMessage("No tasks found on this date.");
         }
-        showMessage(line);
     }
 
     /**
      * Displays the tasks that match a search keyword.
-     * Prints a message if no matching tasks are found.
      *
      * @param matchingTasks The TaskList containing matching tasks.
      */
     public void showSearchResults(TaskList matchingTasks) {
-        showLine();
         if (matchingTasks.size() == 0) {
             showMessage("No matching tasks found in your list!");
-        } else {
-            showMessage("Here are the matching tasks in your list:");
-            for (int i = 0; i < matchingTasks.size(); i++) {
-                showMessage(" " + (i + 1) + "." + matchingTasks.get(i));
-            }
+            return;
         }
-        showLine();
+
+        showMessage("Here are the matching tasks in your list:");
+        for (int i = 0; i < matchingTasks.size(); i++) {
+            showMessage((i + 1) + ". " + matchingTasks.get(i));
+        }
     }
 
     /**
@@ -191,5 +167,4 @@ public class Ui {
     public void clearMessages() {
         messages.clear();
     }
-
 }
