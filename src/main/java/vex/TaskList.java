@@ -8,7 +8,7 @@ import java.util.ArrayList;
  * retrieving tasks.
  */
 public class TaskList {
-    private ArrayList<Task> tasks;
+    private final ArrayList<Task> tasks;
 
     /**
      * Constructs a TaskList with an existing list of tasks.
@@ -16,6 +16,7 @@ public class TaskList {
      * @param tasks The initial list of tasks.
      */
     public TaskList(ArrayList<Task> tasks) {
+        assert tasks != null : "tasks list should not be null";
         this.tasks = tasks;
     }
 
@@ -24,6 +25,7 @@ public class TaskList {
      */
     public TaskList() {
         this.tasks = new ArrayList<>();
+        assert this.tasks != null : "tasks list should not be null after initialization";
     }
 
     /**
@@ -32,6 +34,7 @@ public class TaskList {
      * @param t The task to be added.
      */
     public void add(Task t) {
+        assert t != null : "cannot add null task";
         tasks.add(t);
     }
 
@@ -43,7 +46,10 @@ public class TaskList {
      * @throws IndexOutOfBoundsException If the index is out of range.
      */
     public Task delete(int index) {
-        return tasks.remove(index);
+        assert index >= 0 && index < tasks.size() : "delete index out of range: " + index;
+        Task removed = tasks.remove(index);
+        assert removed != null : "removed task should not be null";
+        return removed;
     }
 
     /**
@@ -54,7 +60,10 @@ public class TaskList {
      * @throws IndexOutOfBoundsException If the index is out of range.
      */
     public Task get(int index) {
-        return tasks.get(index);
+        assert index >= 0 && index < tasks.size() : "get index out of range: " + index;
+        Task task = tasks.get(index);
+        assert task != null : "stored task should not be null";
+        return task;
     }
 
     /**
@@ -63,6 +72,7 @@ public class TaskList {
      * @return The size of the task list.
      */
     public int size() {
+        assert tasks != null : "tasks list should not be null";
         return tasks.size();
     }
 
@@ -72,6 +82,7 @@ public class TaskList {
      * @return An ArrayList containing all tasks.
      */
     public ArrayList<Task> getTasks() {
+        assert tasks != null : "tasks list should not be null";
         return tasks;
     }
 
@@ -83,13 +94,17 @@ public class TaskList {
      * @return A TaskList containing all tasks that match the keyword.
      */
     public TaskList findTasks(String keyword) {
+        assert keyword != null : "keyword should not be null";
+
         TaskList matchingTasks = new TaskList();
+
         for (Task task : tasks) {
+            assert task != null : "stored task should not be null";
             if (task.toString().contains(keyword)) {
                 matchingTasks.add(task);
             }
         }
+
         return matchingTasks;
     }
-
 }
