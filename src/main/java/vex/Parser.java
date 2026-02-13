@@ -6,11 +6,9 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 
 /**
- * Parses user input into commands and delegates execution
- * to TaskList, Ui, and Storage.
+ * Parses user input into commands and delegates execution to TaskList, Ui, and Storage.
  *
- * This class acts as the command-processing layer between
- * user input and application logic.
+ * This class acts as the command-processing layer between user input and application logic.
  */
 public class Parser {
 
@@ -45,10 +43,12 @@ public class Parser {
      * @param ui      Ui instance for displaying feedback
      * @param storage Storage instance for persisting changes
      */
-    public static void handleCommand(String input,
-            TaskList tasks,
-            Ui ui,
-            Storage storage) {
+    public static void handleCommand(String input, TaskList tasks, Ui ui, Storage storage) {
+        // Programmer assumptions
+        assert input != null : "input should not be null";
+        assert tasks != null : "tasks should not be null";
+        assert ui != null : "ui should not be null";
+        assert storage != null : "storage should not be null";
 
         if (input.equalsIgnoreCase(COMMAND_LIST)) {
             ui.showTaskList(tasks);
@@ -100,6 +100,8 @@ public class Parser {
             return;
         }
 
+        assert parts.length == 2 : "show command should contain a date part";
+
         try {
             LocalDate queryDate = LocalDate.parse(parts[1].trim());
             ui.showTasksOnDate(tasks, queryDate);
@@ -116,11 +118,7 @@ public class Parser {
      * @param ui      Ui for output
      * @param storage Storage to persist changes
      */
-    private static void handleMarkStatus(String input,
-            TaskList tasks,
-            Ui ui,
-            Storage storage) {
-
+    private static void handleMarkStatus(String input, TaskList tasks, Ui ui, Storage storage) {
         String[] parts = input.split(" ");
 
         if (parts.length < 2) {
@@ -136,7 +134,10 @@ public class Parser {
                 return;
             }
 
+            assert index >= 0 && index < tasks.size() : "index should be valid after range check";
+
             Task task = tasks.get(index);
+            assert task != null : "TaskList.get(index) should not return null";
 
             if (parts[0].equals(COMMAND_MARK)) {
                 task.markAsDone();
@@ -147,7 +148,6 @@ public class Parser {
             }
 
             storage.save(tasks.getTasks());
-
         } catch (NumberFormatException e) {
             ui.showError("Invalid task number format.");
         }
@@ -161,11 +161,7 @@ public class Parser {
      * @param ui      Ui for output
      * @param storage Storage to persist changes
      */
-    private static void handleDelete(String input,
-            TaskList tasks,
-            Ui ui,
-            Storage storage) {
-
+    private static void handleDelete(String input, TaskList tasks, Ui ui, Storage storage) {
         String[] parts = input.split(" ", 2);
 
         if (parts.length < 2) {
@@ -181,10 +177,13 @@ public class Parser {
                 return;
             }
 
+            assert index >= 0 && index < tasks.size() : "index should be valid after range check";
+
             Task removed = tasks.delete(index);
+            assert removed != null : "delete(index) should return the removed task";
+
             storage.save(tasks.getTasks());
             ui.showDeletedTask(removed, tasks.size());
-
         } catch (NumberFormatException e) {
             ui.showError("Invalid task number format.");
         }
@@ -198,18 +197,13 @@ public class Parser {
      * @param ui      Ui for output
      * @param storage Storage to persist changes
      */
-    private static void handleAddTask(String input,
-            TaskList tasks,
-            Ui ui,
-            Storage storage) {
-
+    private static void handleAddTask(String input, TaskList tasks, Ui ui, Storage storage) {
         try {
             Task newTask = parseTaskFromInput(input);
 
             tasks.add(newTask);
             storage.save(tasks.getTasks());
             ui.showAddedTask(newTask, tasks.size());
-
         } catch (IllegalArgumentException | DateTimeParseException e) {
             ui.showError(e.getMessage());
         }
@@ -247,6 +241,8 @@ public class Parser {
     private static Task parseTodo(String input) {
         String desc = input.substring(TODO_PREFIX_LENGTH).trim();
 
+        assert desc != null : "todo description substring should not be null";
+
         if (desc.isEmpty()) {
             throw new IllegalArgumentException("The description of a todo cannot be empty.");
         }
@@ -264,9 +260,10 @@ public class Parser {
         String payload = input.substring(DEADLINE_PREFIX_LENGTH).trim();
         String[] parts = payload.split(DEADLINE_DELIMITER, 2);
 
-        if (parts.length < 2) {
-            throw new IllegalArgumentException(
-                    "Invalid deadline format. Use: deadline <desc> /by yyyy-MM-dd HHmm");
+        assert parts.length == 2 : "deadline should contain ' /by '";
+
+        if (parts.length < 2 || parts[0].trim().isEmpty() || parts[1].trim().isEmpty()) {
+            throw new IllegalArgumentException("Invalid deadline format. Use: deadline <desc> /by yyyy-MM-dd HHmm");
         }
 
         LocalDateTime by = LocalDateTime.parse(parts[1].trim(), INPUT_FORMAT);
@@ -294,6 +291,11 @@ public class Parser {
         String fromString = payload.substring(fromIndex + EVENT_FROM_DELIMITER.length(), toIndex).trim();
         String toString = payload.substring(toIndex + EVENT_TO_DELIMITER.length()).trim();
 
+        if (desc.isEmpty() || fromString.isEmpty() || toString.isEmpty()) {
+            throw new IllegalArgumentException(
+                    "Invalid event format. Use: event <desc> /from yyyy-MM-dd HHmm /to yyyy-MM-dd HHmm");
+        }
+
         LocalDateTime from = LocalDateTime.parse(fromString, INPUT_FORMAT);
         LocalDateTime to = LocalDateTime.parse(toString, INPUT_FORMAT);
 
@@ -315,7 +317,13 @@ public class Parser {
             return;
         }
 
-        TaskList matchingTasks = tasks.findTasks(parts[1].trim());
+        assert parts.length == 2 : "find command should contain a keyword";
+
+        String keyword = parts[1].trim();
+        TaskList matchingTasks = tasks.findTasks(keyword);
+
+        assert matchingTasks != null : "findTasks should never return null";
+
         ui.showSearchResults(matchingTasks);
     }
 
@@ -327,9 +335,10 @@ public class Parser {
      * @param storage Storage manager
      * @return Aggregated UI response string
      */
-    public static String handleCommandForGui(String input,
-            TaskList tasks,
-            Storage storage) {
+    public static String handleCommandForGui(String input, TaskList tasks, Storage storage) {
+        assert input != null : "input should not be null";
+        assert tasks != null : "tasks should not be null";
+        assert storage != null : "storage should not be null";
 
         Ui ui = new Ui();
         ui.clearMessages();

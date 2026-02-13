@@ -20,21 +20,24 @@ public class Storage {
     private final Path filePath;
 
     /**
-     * Initializes a Storage object with the specified file path.
+     * Constructs a Storage instance using the specified file path.
      *
-     * @param filePathString The string path of the file to store data.
+     * @param filePathString File path where tasks are stored
+     * @throws IllegalArgumentException If filePathString is null
      */
     public Storage(String filePathString) {
         if (filePathString == null) {
             throw new IllegalArgumentException("filePathString must not be null");
         }
         this.filePath = Paths.get(filePathString);
+        assert this.filePath != null : "filePath should not be null after creation";
     }
 
     /**
-     * Saves the list of tasks to the hard disk.
+     * Saves the list of tasks to disk.
      *
-     * @param tasks The list of Task objects to be saved.
+     * @param tasks List of tasks to save
+     * @throws IllegalArgumentException If tasks is null
      */
     public void save(List<Task> tasks) {
         if (tasks == null) {
@@ -46,10 +49,14 @@ public class Storage {
 
             try (BufferedWriter writer = Files.newBufferedWriter(filePath)) {
                 for (Task task : tasks) {
+                    // Defensive: ignore unexpected null tasks safely
                     if (task == null) {
-                        continue; // ignore unexpected null entries safely
+                        continue;
                     }
-                    writer.write(task.toFileString());
+                    String serialized = task.toFileString();
+                    assert serialized != null : "toFileString() should not return null";
+
+                    writer.write(serialized);
                     writer.newLine();
                 }
             }
@@ -59,11 +66,10 @@ public class Storage {
     }
 
     /**
-     * Loads the tasks from the hard disk and returns them as an ArrayList.
-     * If the file does not exist, a new file is created and an empty list is
-     * returned.
+     * Loads tasks from disk.
+     * If the file does not exist, it will be created and an empty list is returned.
      *
-     * @return An ArrayList of tasks loaded from the file.
+     * @return Tasks loaded from the save file
      */
     public ArrayList<Task> load() {
         ArrayList<Task> tasks = new ArrayList<>();
@@ -77,13 +83,14 @@ public class Storage {
             }
 
             List<String> lines = Files.readAllLines(filePath);
+            assert lines != null : "readAllLines should not return null";
+
             for (String line : lines) {
                 Task parsed = tryParseTask(line);
                 if (parsed != null) {
                     tasks.add(parsed);
                 }
             }
-
         } catch (IOException e) {
             System.out.println("Error loading tasks from file.");
         }
@@ -94,6 +101,9 @@ public class Storage {
     /**
      * Attempts to parse a line into a Task.
      * Returns null if the line is corrupted or cannot be parsed.
+     *
+     * @param line A line from the save file
+     * @return Parsed Task, or null if invalid
      */
     private Task tryParseTask(String line) {
         if (line == null || line.isBlank()) {
@@ -111,11 +121,13 @@ public class Storage {
     /**
      * Parses a single line from the save file into a Task object.
      *
-     * @param line The string line representing a task in the save file.
-     * @return The corresponding Task object (Todo, Deadline, or Event).
-     * @throws IllegalArgumentException If the line format is invalid.
+     * @param line The string line representing a task in the save file
+     * @return The corresponding Task object (Todo, Deadline, or Event)
+     * @throws IllegalArgumentException If the line format is invalid
      */
     private Task parseTask(String line) {
+        assert line != null : "line passed to parseTask should not be null";
+
         String[] parts = line.split(DELIMITER);
 
         if (parts.length < 3) {
@@ -126,6 +138,9 @@ public class Storage {
         boolean done = parts[1].equals("1");
         String desc = parts[2];
 
+        assert type != null : "Task type should not be null";
+        assert desc != null : "Task description should not be null";
+
         Task task = createTaskFromParts(type, desc, parts);
 
         if (done) {
@@ -135,6 +150,15 @@ public class Storage {
         return task;
     }
 
+    /**
+     * Creates a Task instance based on the parsed fields.
+     *
+     * @param type Task type identifier (T, D, E)
+     * @param desc Task description
+     * @param parts Full split parts array
+     * @return A Task instance
+     * @throws IllegalArgumentException If fields are missing or type is unknown
+     */
     private Task createTaskFromParts(String type, String desc, String[] parts) {
         switch (type) {
             case "T":
