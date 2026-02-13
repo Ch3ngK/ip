@@ -6,7 +6,8 @@ import java.util.List;
 
 /**
  * Represents a list of tasks.
- * Provides methods to manipulate the list such as adding, deleting, and retrieving tasks.
+ * Provides methods to manipulate the list such as adding, deleting, and
+ * retrieving tasks.
  */
 public class TaskList {
 
@@ -95,7 +96,8 @@ public class TaskList {
     }
 
     /**
-     * Finds and returns tasks whose string representation contains the given keyword.
+     * Finds and returns tasks whose string representation contains the given
+     * keyword.
      *
      * @param keyword The keyword used to search for matching tasks
      * @return A TaskList containing all tasks that match the keyword
@@ -109,12 +111,9 @@ public class TaskList {
 
         TaskList matchingTasks = new TaskList();
 
-        for (Task task : tasks) {
-            assert task != null : "stored task should not be null";
-            if (task.toString().contains(keyword)) {
-                matchingTasks.add(task);
-            }
-        }
+        tasks.stream()
+                .filter(task -> task.toString().contains(keyword))
+                .forEach(matchingTasks::add);
 
         return matchingTasks;
     }
