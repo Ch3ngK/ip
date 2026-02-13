@@ -1,12 +1,14 @@
 package vex;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 /**
  * Represents a list of tasks.
- * Provides methods to manipulate the list such as adding, deleting, and retrieving tasks.
+ * Provides methods to manipulate the list such as adding, deleting, and
+ * retrieving tasks.
  */
 public class TaskList {
 
@@ -95,7 +97,8 @@ public class TaskList {
     }
 
     /**
-     * Finds and returns tasks whose string representation contains the given keyword.
+     * Finds and returns tasks whose string representation contains the given
+     * keyword.
      *
      * @param keyword The keyword used to search for matching tasks
      * @return A TaskList containing all tasks that match the keyword
@@ -109,13 +112,29 @@ public class TaskList {
 
         TaskList matchingTasks = new TaskList();
 
-        for (Task task : tasks) {
-            assert task != null : "stored task should not be null";
-            if (task.toString().contains(keyword)) {
-                matchingTasks.add(task);
-            }
-        }
+        tasks.stream()
+                .filter(task -> task.toString().contains(keyword))
+                .forEach(matchingTasks::add);
 
         return matchingTasks;
     }
+
+    /**
+     * Gets tasks that are due within the specified number of days from today.
+     *
+     * @param days
+     * @return
+     */
+    public TaskList getReminders(int days) {
+        if (days < 0)
+            throw new IllegalArgumentException("days must be non-negative!");
+        LocalDate today = LocalDate.now();
+
+        TaskList result = new TaskList();
+        tasks.stream()
+                .filter(t -> t.isDueWithin(today, days))
+                .forEach(result::add);
+        return result;
+    }
+
 }

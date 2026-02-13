@@ -6,9 +6,11 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 
 /**
- * Parses user input into commands and delegates execution to TaskList, Ui, and Storage.
+ * Parses user input into commands and delegates execution to TaskList, Ui, and
+ * Storage.
  *
- * This class acts as the command-processing layer between user input and application logic.
+ * This class acts as the command-processing layer between user input and
+ * application logic.
  */
 public class Parser {
 
@@ -34,6 +36,9 @@ public class Parser {
     private static final int TODO_PREFIX_LENGTH = 4;
     private static final int DEADLINE_PREFIX_LENGTH = 8;
     private static final int EVENT_PREFIX_LENGTH = 5;
+
+    private static final String COMMAND_REMIND = "remind";
+    private static final int DEFAULT_REMIND_DAYS = 7;
 
     /**
      * Processes user input and executes the corresponding command.
@@ -79,6 +84,11 @@ public class Parser {
 
         if (input.startsWith(COMMAND_FIND)) {
             handleFind(input, tasks, ui);
+            return;
+        }
+
+        if (input.startsWith(COMMAND_REMIND)) {
+            handleRemind(input, tasks, ui);
             return;
         }
 
@@ -345,4 +355,46 @@ public class Parser {
         handleCommand(input, tasks, ui, storage);
         return ui.getAllMessages();
     }
+
+    /**
+     * Handles the 'remind' command to show upcoming deadlines/events.
+     *
+     * Formats:
+     * - remind (defaults to 7 days)
+     * - remind <days> (e.g., remind 3)
+     *
+     * @param input Raw user input
+     * @param tasks TaskList to search
+     * @param ui    Ui for output
+     */
+    private static void handleRemind(String input, TaskList tasks, Ui ui) {
+        assert input != null : "input should not be null";
+        assert tasks != null : "tasks should not be null";
+        assert ui != null : "ui should not be null";
+
+        String[] parts = input.trim().split("\\s+");
+
+        int days = DEFAULT_REMIND_DAYS;
+
+        if (parts.length == 2) {
+            try {
+                days = Integer.parseInt(parts[1]);
+            } catch (NumberFormatException e) {
+                ui.showError("Invalid reminder window. Use: remind <days> (e.g., remind 3)");
+                return;
+            }
+        } else if (parts.length > 2) {
+            ui.showError("Too many arguments. Use: remind <days> (e.g., remind 3)");
+            return;
+        }
+
+        if (days < 0) {
+            ui.showError("Days must be a non-negative number.");
+            return;
+        }
+
+        TaskList reminders = tasks.getReminders(days);
+        ui.showReminders(reminders, days);
+    }
+
 }
