@@ -22,12 +22,12 @@ public class Storage {
     /**
      * Constructs a Storage instance using the specified file path.
      *
-     * @param filePathString File path where tasks are stored
-     * @throws IllegalArgumentException If filePathString is null
+     * @param filePathString File path where tasks are stored (e.g. "data/tasks.txt")
+     * @throws IllegalArgumentException If filePathString is null or blank
      */
     public Storage(String filePathString) {
-        if (filePathString == null) {
-            throw new IllegalArgumentException("filePathString must not be null");
+        if (filePathString == null || filePathString.isBlank()) {
+            throw new IllegalArgumentException("file path must not be null or empty");
         }
         this.filePath = Paths.get(filePathString);
         assert this.filePath != null : "filePath should not be null after creation";
@@ -37,9 +37,10 @@ public class Storage {
      * Saves the list of tasks to disk.
      *
      * @param tasks List of tasks to save
+     * @return true if save succeeded, false on IOException
      * @throws IllegalArgumentException If tasks is null
      */
-    public void save(List<Task> tasks) {
+    public boolean save(List<Task> tasks) {
         if (tasks == null) {
             throw new IllegalArgumentException("tasks must not be null");
         }
@@ -49,7 +50,6 @@ public class Storage {
 
             try (BufferedWriter writer = Files.newBufferedWriter(filePath)) {
                 for (Task task : tasks) {
-                    // Defensive: ignore unexpected null tasks safely
                     if (task == null) {
                         continue;
                     }
@@ -60,39 +60,42 @@ public class Storage {
                     writer.newLine();
                 }
             }
+            return true;
         } catch (IOException e) {
-            System.out.println("Error saving tasks to file.");
+            return false;
         }
     }
 
     /**
      * Loads tasks from disk.
-     * If the file does not exist, it will be created and an empty list is returned.
+     * If the file does not exist, the directory is created, the file is created,
+     * and an empty list is returned. If the file exists but cannot be read
+     * (e.g. permissions, corrupted path), throws IOException so the caller can
+     * inform the user.
      *
-     * @return Tasks loaded from the save file
+     * @return Tasks loaded from the save file (never null)
+     * @throws IOException if the file or directory cannot be created or read
      */
-    public ArrayList<Task> load() {
+    public ArrayList<Task> load() throws IOException {
         ArrayList<Task> tasks = new ArrayList<>();
 
-        try {
+        if (filePath.getParent() != null) {
             Files.createDirectories(filePath.getParent());
+        }
 
-            if (!Files.exists(filePath)) {
-                Files.createFile(filePath);
-                return tasks;
+        if (!Files.exists(filePath)) {
+            Files.createFile(filePath);
+            return tasks;
+        }
+
+        List<String> lines = Files.readAllLines(filePath);
+        assert lines != null : "readAllLines should not return null";
+
+        for (String line : lines) {
+            Task parsed = tryParseTask(line);
+            if (parsed != null) {
+                tasks.add(parsed);
             }
-
-            List<String> lines = Files.readAllLines(filePath);
-            assert lines != null : "readAllLines should not return null";
-
-            for (String line : lines) {
-                Task parsed = tryParseTask(line);
-                if (parsed != null) {
-                    tasks.add(parsed);
-                }
-            }
-        } catch (IOException e) {
-            System.out.println("Error loading tasks from file.");
         }
 
         return tasks;

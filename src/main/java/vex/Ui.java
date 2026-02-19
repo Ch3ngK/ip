@@ -13,6 +13,10 @@ import java.util.List;
  */
 public class Ui {
 
+    /** Date format for display (e.g. "Jan 15 2025"). */
+    private static final DateTimeFormatter DISPLAY_DATE_FORMAT =
+            DateTimeFormatter.ofPattern("MMM d yyyy");
+
     /** Stores messages for GUI output. */
     private final List<String> messages;
 
@@ -45,13 +49,13 @@ public class Ui {
 
     /** Prints the welcome greeting to the user. */
     public void showGreeting() {
-        showMessage("Hello! I'm Vex.");
-        showMessage("What can I do for you?");
+        showMessage("The Ancient stirs. I am Vex.");
+        showMessage("What orders do you bring, commander?");
     }
 
     /** Prints the goodbye message when the application terminates. */
     public void showBye() {
-        showMessage("Bye. Hope to see you again soon!");
+        showMessage("The battle ends. Until we meet again in the dark.");
     }
 
     /**
@@ -60,7 +64,7 @@ public class Ui {
      * @param message The error message to display.
      */
     public void showError(String message) {
-        showMessage("Error: " + message);
+        showMessage("The Ancient frowns: " + message);
     }
 
     /**
@@ -69,9 +73,11 @@ public class Ui {
      * @param tasks The TaskList containing tasks to show.
      */
     public void showTaskList(TaskList tasks) {
-        showMessage("Here are the tasks in your list:");
-        for (int i = 0; i < tasks.size(); i++) {
-            showMessage((i + 1) + ". " + tasks.get(i));
+        showMessage("Your campaign log, commander:");
+        if (tasks.isEmpty()) {
+            showMessage("No objectives yet. Use todo, deadline, or event to add some.");
+        } else {
+            showNumberedTaskList(tasks);
         }
     }
 
@@ -81,7 +87,7 @@ public class Ui {
      * @param task The task that was marked.
      */
     public void showMarkedTask(Task task) {
-        showMessage("Nice! I've marked this task as done:");
+        showMessage("Objective complete. Marked as done:");
         showMessage(task.toString());
     }
 
@@ -91,7 +97,7 @@ public class Ui {
      * @param task The task that was unmarked.
      */
     public void showUnmarkedTask(Task task) {
-        showMessage("OK, I've marked this task as not done yet:");
+        showMessage("Reopened. Marked as not done:");
         showMessage(task.toString());
     }
 
@@ -102,9 +108,9 @@ public class Ui {
      * @param size The current number of tasks in the list.
      */
     public void showAddedTask(Task task, int size) {
-        showMessage("Got it. I've added this task:");
+        showMessage("Added to the roster:");
         showMessage("  " + task);
-        showMessage("Now you have " + size + " tasks in the list.");
+        showMessage("You now have " + size + " objective(s) in your campaign.");
     }
 
     /**
@@ -114,9 +120,9 @@ public class Ui {
      * @param size The current number of tasks remaining.
      */
     public void showDeletedTask(Task task, int size) {
-        showMessage("Noted. I've removed this task:");
+        showMessage("Struck from the roster:");
         showMessage("  " + task);
-        showMessage("Now you have " + size + " tasks in the list.");
+        showMessage("You now have " + size + " objective(s) in your campaign.");
     }
 
     /**
@@ -126,9 +132,9 @@ public class Ui {
      * @param queryDate The date for which to filter tasks.
      */
     public void showTasksOnDate(TaskList tasks, LocalDate queryDate) {
-        String formattedDate = queryDate.format(DateTimeFormatter.ofPattern("MMM d yyyy"));
+        String formattedDate = queryDate.format(DISPLAY_DATE_FORMAT);
 
-        showMessage("Tasks on " + formattedDate + ":");
+        showMessage("Objectives on " + formattedDate + ":");
 
         boolean found = false;
         for (Task task : tasks.getTasks()) {
@@ -139,7 +145,7 @@ public class Ui {
         }
 
         if (!found) {
-            showMessage("No tasks found on this date.");
+            showMessage("No battles scheduled for this date.");
         }
     }
 
@@ -149,15 +155,13 @@ public class Ui {
      * @param matchingTasks The TaskList containing matching tasks.
      */
     public void showSearchResults(TaskList matchingTasks) {
-        if (matchingTasks.size() == 0) {
-            showMessage("No matching tasks found in your list!");
+        if (matchingTasks.isEmpty()) {
+            showMessage("No objectives match that call.");
             return;
         }
 
-        showMessage("Here are the matching tasks in your list:");
-        for (int i = 0; i < matchingTasks.size(); i++) {
-            showMessage((i + 1) + ". " + matchingTasks.get(i));
-        }
+        showMessage("Intel matching your search:");
+        showNumberedTaskList(matchingTasks);
     }
 
     /**
@@ -175,13 +179,22 @@ public class Ui {
      * @param days      Number of days to look ahead
      */
     public void showReminders(TaskList reminders, int days) {
-        if (reminders.size() == 0) {
-            showMessage("No upcoming tasks in the next " + days + " day(s).");
+        if (reminders.isEmpty()) {
+            showMessage("No engagements in the next " + days + " day(s). The lane is clear.");
         } else {
-            showMessage("Here are your upcoming tasks in the next " + days + " day(s):");
-            for (int i = 0; i < reminders.size(); i++) {
-                showMessage(" " + (i + 1) + "." + reminders.get(i));
-            }
+            showMessage("Upcoming engagements in the next " + days + " day(s):");
+            showNumberedTaskList(reminders);
+        }
+    }
+
+    /**
+     * Displays a task list as numbered lines (1. task, 2. task, ...).
+     *
+     * @param tasks The TaskList to display.
+     */
+    private void showNumberedTaskList(TaskList tasks) {
+        for (int i = 0; i < tasks.size(); i++) {
+            showMessage((i + 1) + ". " + tasks.get(i));
         }
     }
 

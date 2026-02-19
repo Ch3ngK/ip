@@ -89,4 +89,18 @@
 
 .button:hover {
     -fx-background-color: linear-gradient(#e74c3c, #922b21);
+    -fx-effect: dropshadow(gaussian, rgba(231, 76, 60, 0.6), 12, 0, 0, 0);
+}
+
+.button:pressed {
+    -fx-background-color: linear-gradient(#641e16, #922b21);
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.5), 6, 0, 0, 2);
+}
+
+/* =======================
+   TEXT FIELD FOCUS
+   ======================= */
+.text-field:focused {
+    -fx-border-color: #e74c3c;
+    -fx-effect: dropshadow(gaussian, rgba(231, 76, 60, 0.4), 8, 0, 0, 0);
 }
