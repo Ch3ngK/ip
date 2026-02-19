@@ -6,11 +6,11 @@ Vex is a lightweight command-line task manager that helps you manage todos, dead
 
 ## Features
 Vex allows you to:
--Add and manage tasks
--Track deadlines and events
--Mark tasks as completed
--Search tasks quickly
--Store your tasks automatically
+- Add and manage tasks
+- Track deadlines and events
+- Mark tasks as completed
+- Search tasks quickly
+- Store your tasks automatically
 
 
 ## Adding todos
@@ -19,14 +19,14 @@ Adds a Todo task to the task list, with completed/uncompleted status.
 
 Todos have a description.
 
--Format: `todo DESCRIPTION`
+Format: `todo DESCRIPTION`
 
 Example:
--`todo Coding Assignment`
+`todo Coding Assignment`
 
 Expected output:
 ```
--Added to the roster:
+Added to the roster:
   [T][ ] Coding Assignment
 ```
 
@@ -39,7 +39,7 @@ Deadlines have a description and by date.
 Format: `deadline DESCRIPTION /by DATE`
 
 Example:
--`deadline Essay /by 2026-02-19 1400`
+`deadline Essay /by 2026-02-19 1400`
 
 Example output:
 ```
@@ -55,8 +55,7 @@ Events have a description, start and end date.
 
 Format: `event Description /from YYYY-MM-DD /to YYYY-MM-DD`
 
-Example:
--`event Project Meeting /from 2026-02-20 1300 /to 2026-02-20 1430`
+Example: `event Project Meeting /from 2026-02-20 1300 /to 2026-02-20 1430`
 
 Example output:
 ```
