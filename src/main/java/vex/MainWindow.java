@@ -3,8 +3,8 @@ package vex;
 import javafx.animation.FadeTransition;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
-import javafx.animation.PauseTransition;
 import javafx.animation.ParallelTransition;
+import javafx.animation.PauseTransition;
 import javafx.animation.Timeline;
 import javafx.animation.TranslateTransition;
 import javafx.application.Platform;
@@ -16,9 +16,12 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.geometry.Pos;
 import javafx.util.Duration;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -50,17 +53,11 @@ public class MainWindow {
     private Image userImage;
     private Image vexImage;
 
-    /** Keeps scroll at bottom when content grows; removed during scroll animation. */
+    /**
+     * Keeps scroll at bottom when content grows; removed during scroll animation.
+     */
     private InvalidationListener scrollToBottomListener;
 
-    /**
-     * Initializes the main window after its FXML elements are loaded.
-     * <p>
-     * Binds the scroll pane to automatically scroll to the latest dialog,
-     * applies the Dota 2 themed background, and loads avatar images
-     * for the user and Vex.
-     * </p>
-     */
     @FXML
     public void initialize() {
         scrollToBottomListener = o -> scrollPane.setVvalue(1.0);
@@ -77,12 +74,6 @@ public class MainWindow {
         vexImage = new Image(getClass().getResourceAsStream("/images/dota_vex.png"));
     }
 
-    /**
-     * Injects the {@link Vex} logic instance into this controller.
-     * Displays the greeting message when the GUI starts.
-     *
-     * @param v The Vex instance responsible for processing user commands.
-     */
     public void setVex(Vex v) {
         vex = v;
         String greeting = vex.getGreeting();
@@ -92,15 +83,6 @@ public class MainWindow {
         typeText(vexBox.getDialogLabel(), greeting);
     }
 
-    /**
-     * Handles user input submitted through the text field or send button.
-     * <p>
-     * Displays the user's message, obtains a response from Vex,
-     * and shows both as dialog boxes in the chat window.
-     * If the user enters the {@code bye} command, a farewell message
-     * is shown and the application exits after a short delay.
-     * </p>
-     */
     @FXML
     private void handleUserInput() {
         String input = userInput.getText();
@@ -136,26 +118,41 @@ public class MainWindow {
         for (int i = 0; i < text.length(); i++) {
             final int index = i;
             timeline.getKeyFrames().add(
-                    new KeyFrame(Duration.millis(25 * i),
+                    new KeyFrame(Duration.millis(25L * i),
                             e -> label.setText(text.substring(0, index + 1))));
         }
         timeline.play();
     }
 
     /**
-     * Adds dialog boxes to the chat, runs entrance animations, and smooth-scrolls to bottom.
+     * Wraps each DialogBox in a full-width row, aligns it left/right,
+     * adds to chat, runs entrance animations, and smooth-scrolls to bottom.
      *
      * @param boxes     Dialog boxes to add (in order)
-     * @param fromRight For each box: true = slide from right (user), false = slide from left (Vex)
+     * @param fromRight For each box: true = user/right, false = vex/left
      */
     private void addDialogsWithScroll(List<DialogBox> boxes, List<Boolean> fromRight) {
         dialogContainer.heightProperty().removeListener(scrollToBottomListener);
-        dialogContainer.getChildren().addAll(boxes);
+
+        // Create aligned rows (full width), and animate the rows (not the bubble)
+        List<HBox> rows = new ArrayList<>();
+        for (int i = 0; i < boxes.size(); i++) {
+            DialogBox box = boxes.get(i);
+            boolean isUser = fromRight.get(i);
+
+            HBox row = new HBox(box);
+            row.setAlignment(isUser ? Pos.TOP_RIGHT : Pos.TOP_LEFT);
+            row.setMaxWidth(Double.MAX_VALUE); // IMPORTANT: gives space to push right
+            rows.add(row);
+        }
+
+        dialogContainer.getChildren().addAll(rows);
         scrollPane.setVvalue(0);
 
-        for (int i = 0; i < boxes.size(); i++) {
-            playEntranceAnimation(boxes.get(i), fromRight.get(i));
+        for (int i = 0; i < rows.size(); i++) {
+            playEntranceAnimation(rows.get(i), fromRight.get(i));
         }
+
         Timeline scrollDown = new Timeline(
                 new KeyFrame(Duration.millis(350), new KeyValue(scrollPane.vvalueProperty(), 1.0)));
         scrollDown.setOnFinished(e -> dialogContainer.heightProperty().addListener(scrollToBottomListener));
@@ -163,25 +160,25 @@ public class MainWindow {
     }
 
     /**
-     * Plays a fade-in + slide entrance animation on a dialog box.
+     * Plays a fade-in + slide entrance animation on a row.
      *
-     * @param box       The dialog box to animate
-     * @param fromRight true for user (slides from right), false for Vex (slides from left)
+     * @param node      The row to animate
+     * @param fromRight true for user (slides from right), false for Vex (slides
+     *                  from left)
      */
-    private void playEntranceAnimation(DialogBox box, boolean fromRight) {
+    private void playEntranceAnimation(HBox node, boolean fromRight) {
         double startX = fromRight ? 40 : -40;
-        box.setOpacity(0);
-        box.setTranslateX(startX);
+        node.setOpacity(0);
+        node.setTranslateX(startX);
 
-        FadeTransition fade = new FadeTransition(Duration.millis(280), box);
+        FadeTransition fade = new FadeTransition(Duration.millis(280), node);
         fade.setFromValue(0);
         fade.setToValue(1);
 
-        TranslateTransition slide = new TranslateTransition(Duration.millis(280), box);
+        TranslateTransition slide = new TranslateTransition(Duration.millis(280), node);
         slide.setFromX(startX);
         slide.setToX(0);
 
         new ParallelTransition(fade, slide).play();
     }
-
 }

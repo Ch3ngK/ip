@@ -9,6 +9,7 @@ import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Region;
 
 /**
  * Dialog box consisting of text and an avatar image.
@@ -33,8 +34,16 @@ public class DialogBox extends HBox {
             e.printStackTrace();
         }
 
+        // Text settings
         dialog.setText(text);
+        dialog.setWrapText(true);
+        dialog.setMaxWidth(250);
+
+        // Image
         displayPicture.setImage(img);
+
+        this.setMaxWidth(Region.USE_PREF_SIZE);
+        this.setAlignment(Pos.TOP_LEFT); // internal alignment only
     }
 
     /** User dialog: text left, image right */
@@ -45,7 +54,6 @@ public class DialogBox extends HBox {
         db.dialog.getStyleClass().add("dialog-label");
 
         db.getChildren().setAll(db.dialog, db.displayPicture);
-        db.setAlignment(Pos.TOP_RIGHT);
 
         return db;
     }
@@ -58,7 +66,6 @@ public class DialogBox extends HBox {
         db.dialog.getStyleClass().add("dialog-label");
 
         db.getChildren().setAll(db.displayPicture, db.dialog);
-        db.setAlignment(Pos.TOP_LEFT);
 
         return db;
     }
@@ -66,5 +73,4 @@ public class DialogBox extends HBox {
     public Label getDialogLabel() {
         return dialog;
     }
-
 }
