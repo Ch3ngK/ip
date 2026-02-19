@@ -88,6 +88,15 @@ public class TaskList {
     }
 
     /**
+     * Returns true if there are no tasks in the list.
+     *
+     * @return true if the list is empty
+     */
+    public boolean isEmpty() {
+        return tasks.isEmpty();
+    }
+
+    /**
      * Returns an unmodifiable view of the underlying list of tasks.
      *
      * @return A read-only view containing all tasks
@@ -120,10 +129,10 @@ public class TaskList {
     }
 
     /**
-     * Gets tasks that are due within the specified number of days from today.
+     * Gets tasks that are due or starting within the specified number of days from today.
      *
-     * @param days
-     * @return
+     * @param days Number of days from today to look ahead (inclusive)
+     * @return A TaskList of matching deadline and event tasks
      */
     public TaskList getReminders(int days) {
         if (days < 0)

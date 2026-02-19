@@ -6,11 +6,9 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 
 /**
- * Parses user input into commands and delegates execution to TaskList, Ui, and
- * Storage.
+ * Parses user input into commands and delegates execution to TaskList, Ui, and Storage.
  *
- * This class acts as the command-processing layer between user input and
- * application logic.
+ * This class acts as the command-processing layer between user input and application logic.
  */
 public class Parser {
 
@@ -28,17 +26,27 @@ public class Parser {
     private static final String COMMAND_DEADLINE = "deadline";
     private static final String COMMAND_EVENT = "event";
     private static final String COMMAND_FIND = "find";
+    private static final String COMMAND_REMIND = "remind";
 
     private static final String DEADLINE_DELIMITER = " /by ";
     private static final String EVENT_FROM_DELIMITER = " /from ";
     private static final String EVENT_TO_DELIMITER = " /to ";
 
-    private static final int TODO_PREFIX_LENGTH = 4;
-    private static final int DEADLINE_PREFIX_LENGTH = 8;
-    private static final int EVENT_PREFIX_LENGTH = 5;
-
-    private static final String COMMAND_REMIND = "remind";
     private static final int DEFAULT_REMIND_DAYS = 7;
+
+    private static final String ERROR_UNKNOWN_COMMAND =
+            "The Ancient does not understand your orders. Try again, commander. "
+            + "(Valid: list, show, mark, unmark, delete, todo, deadline, event, find, remind, bye)";
+    private static final String ERROR_EMPTY_INPUT = "The battlefield awaits your command...";
+    private static final String ERROR_TASK_NUMBER_INVALID = "That target does not exist in this lane.";
+    private static final String ERROR_SHOW_NO_DATE = "State the date of battle. Use yyyy-MM-dd.";
+    private static final String ERROR_SHOW_BAD_DATE = "Invalid date. The Ancient demands yyyy-MM-dd.";
+    private static final String ERROR_NO_TASK_NUMBER = "Specify which objective. Give a task number.";
+    private static final String ERROR_FIND_NO_KEYWORD = "What intel do you seek? Provide a keyword.";
+    private static final String ERROR_REMIND_TOO_MANY = "One number only. Use: remind <days> (e.g., remind 3)";
+    private static final String ERROR_REMIND_BAD_DAYS = "The timeline is unclear. Use: remind <days> (e.g., remind 3)";
+    private static final String ERROR_REMIND_NEGATIVE = "Time does not flow backward. Days must be zero or more.";
+    private static final String ERROR_SAVE_FAILED = "The campaign archives could not be written. Your changes were not saved.";
 
     /**
      * Processes user input and executes the corresponding command.
@@ -49,107 +57,103 @@ public class Parser {
      * @param storage Storage instance for persisting changes
      */
     public static void handleCommand(String input, TaskList tasks, Ui ui, Storage storage) {
-        // Programmer assumptions
-        assert input != null : "input should not be null";
-        assert tasks != null : "tasks should not be null";
-        assert ui != null : "ui should not be null";
-        assert storage != null : "storage should not be null";
+        if (tasks == null || ui == null || storage == null) {
+            throw new IllegalArgumentException("tasks/ui/storage must not be null");
+        }
 
-        if (input.equalsIgnoreCase(COMMAND_LIST)) {
+        String trimmed = normalizeInput(input);
+        if (trimmed.isEmpty()) {
+            ui.showError(ERROR_EMPTY_INPUT);
+            return;
+        }
+
+        String[] parts = trimmed.split("\\s+", 2);
+        String command = parts[0].toLowerCase();
+        String args = parts.length == 2 ? parts[1] : "";
+
+        switch (command) {
+        case COMMAND_LIST:
             ui.showTaskList(tasks);
-            return;
-        }
+            break;
 
-        if (input.startsWith(COMMAND_SHOW)) {
-            handleShow(input, tasks, ui);
-            return;
-        }
+        case COMMAND_SHOW:
+            handleShow(args, tasks, ui);
+            break;
 
-        if (input.startsWith(COMMAND_MARK) || input.startsWith(COMMAND_UNMARK)) {
-            handleMarkStatus(input, tasks, ui, storage);
-            return;
-        }
+        case COMMAND_MARK:
+        case COMMAND_UNMARK:
+            handleMarkStatus(command, args, tasks, ui, storage);
+            break;
 
-        if (input.startsWith(COMMAND_DELETE)) {
-            handleDelete(input, tasks, ui, storage);
-            return;
-        }
+        case COMMAND_DELETE:
+            handleDelete(args, tasks, ui, storage);
+            break;
 
-        if (input.startsWith(COMMAND_TODO)
-                || input.startsWith(COMMAND_DEADLINE)
-                || input.startsWith(COMMAND_EVENT)) {
-            handleAddTask(input, tasks, ui, storage);
-            return;
-        }
+        case COMMAND_TODO:
+        case COMMAND_DEADLINE:
+        case COMMAND_EVENT:
+            handleAddTask(command, args, tasks, ui, storage);
+            break;
 
-        if (input.startsWith(COMMAND_FIND)) {
-            handleFind(input, tasks, ui);
-            return;
-        }
+        case COMMAND_FIND:
+            handleFind(args, tasks, ui);
+            break;
 
-        if (input.startsWith(COMMAND_REMIND)) {
-            handleRemind(input, tasks, ui);
-            return;
-        }
+        case COMMAND_REMIND:
+            handleRemind(args, tasks, ui);
+            break;
 
-        ui.showError("I apologise, but I am unsure of what that means. Care to edit your message? :-(");
+        default:
+            ui.showError(ERROR_UNKNOWN_COMMAND);
+            break;
+        }
+    }
+
+    private static String normalizeInput(String input) {
+        return trimToEmpty(input);
+    }
+
+    /** Returns empty string if s is null, otherwise s trimmed. */
+    private static String trimToEmpty(String s) {
+        return s == null ? "" : s.trim();
     }
 
     /**
      * Handles the 'show' command to display tasks on a specific date.
      *
-     * @param input Raw user input
+     * @param args  Raw argument string (expected date)
      * @param tasks TaskList to query
      * @param ui    Ui for output
      */
-    private static void handleShow(String input, TaskList tasks, Ui ui) {
-        String[] parts = input.split(" ", 2);
-
-        if (parts.length < 2 || parts[1].trim().isEmpty()) {
-            ui.showError("You must provide a date in yyyy-MM-dd format.");
+    private static void handleShow(String args, TaskList tasks, Ui ui) {
+        if (trimToEmpty(args).isEmpty()) {
+            ui.showError(ERROR_SHOW_NO_DATE);
             return;
         }
 
-        assert parts.length == 2 : "show command should contain a date part";
-
         try {
-            LocalDate queryDate = LocalDate.parse(parts[1].trim());
+            LocalDate queryDate = LocalDate.parse(trimToEmpty(args));
             ui.showTasksOnDate(tasks, queryDate);
         } catch (DateTimeParseException e) {
-            ui.showError("Invalid date format. Use yyyy-MM-dd.");
+            ui.showError(ERROR_SHOW_BAD_DATE);
         }
     }
 
     /**
      * Handles 'mark' and 'unmark' commands to update task completion status.
      *
-     * @param input   Raw user input
+     * @param command Either "mark" or "unmark"
+     * @param args    Raw argument string (expected task number)
      * @param tasks   TaskList to modify
      * @param ui      Ui for output
      * @param storage Storage to persist changes
      */
-    private static void handleMarkStatus(String input, TaskList tasks, Ui ui, Storage storage) {
-        String[] parts = input.split(" ");
-
-        if (parts.length < 2) {
-            ui.showError("You must specify a task number.");
-            return;
-        }
-
+    private static void handleMarkStatus(String command, String args, TaskList tasks, Ui ui, Storage storage) {
         try {
-            int index = Integer.parseInt(parts[1]) - 1;
-
-            if (index < 0 || index >= tasks.size()) {
-                ui.showError("Task number out of range.");
-                return;
-            }
-
-            assert index >= 0 && index < tasks.size() : "index should be valid after range check";
-
+            int index = parseTaskIndexOrThrow(args, tasks);
             Task task = tasks.get(index);
-            assert task != null : "TaskList.get(index) should not return null";
 
-            if (parts[0].equals(COMMAND_MARK)) {
+            if (COMMAND_MARK.equals(command)) {
                 task.markAsDone();
                 ui.showMarkedTask(task);
             } else {
@@ -157,62 +161,71 @@ public class Parser {
                 ui.showUnmarkedTask(task);
             }
 
-            storage.save(tasks.getTasks());
-        } catch (NumberFormatException e) {
-            ui.showError("Invalid task number format.");
+            if (!storage.save(tasks.getTasks())) {
+                ui.showError(ERROR_SAVE_FAILED);
+            }
+        } catch (IllegalArgumentException e) {
+            ui.showError(e.getMessage());
         }
     }
 
     /**
      * Handles the 'delete' command to remove a task.
      *
-     * @param input   Raw user input
+     * @param args    Raw argument string (expected task number)
      * @param tasks   TaskList to modify
      * @param ui      Ui for output
      * @param storage Storage to persist changes
      */
-    private static void handleDelete(String input, TaskList tasks, Ui ui, Storage storage) {
-        String[] parts = input.split(" ", 2);
-
-        if (parts.length < 2) {
-            ui.showError("You must specify a task number.");
-            return;
-        }
-
+    private static void handleDelete(String args, TaskList tasks, Ui ui, Storage storage) {
         try {
-            int index = Integer.parseInt(parts[1]) - 1;
-
-            if (index < 0 || index >= tasks.size()) {
-                ui.showError("Task number out of range.");
-                return;
-            }
-
-            assert index >= 0 && index < tasks.size() : "index should be valid after range check";
-
+            int index = parseTaskIndexOrThrow(args, tasks);
             Task removed = tasks.delete(index);
-            assert removed != null : "delete(index) should return the removed task";
 
-            storage.save(tasks.getTasks());
+            if (!storage.save(tasks.getTasks())) {
+                ui.showError(ERROR_SAVE_FAILED);
+            }
             ui.showDeletedTask(removed, tasks.size());
-        } catch (NumberFormatException e) {
-            ui.showError("Invalid task number format.");
+        } catch (IllegalArgumentException e) {
+            ui.showError(e.getMessage());
         }
+    }
+
+    private static int parseTaskIndexOrThrow(String raw, TaskList tasks) {
+        if (trimToEmpty(raw).isEmpty()) {
+            throw new IllegalArgumentException(ERROR_NO_TASK_NUMBER);
+        }
+
+        int index;
+        try {
+            index = Integer.parseInt(trimToEmpty(raw)) - 1;
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException(ERROR_TASK_NUMBER_INVALID);
+        }
+
+        if (index < 0 || index >= tasks.size()) {
+            throw new IllegalArgumentException("You cannot attack what is not there!");
+        }
+        return index;
     }
 
     /**
      * Handles task creation commands (todo, deadline, event).
      *
-     * @param input   Raw user input
+     * @param command Command word
+     * @param args    Rest of line after command
      * @param tasks   TaskList to modify
      * @param ui      Ui for output
      * @param storage Storage to persist changes
      */
-    private static void handleAddTask(String input, TaskList tasks, Ui ui, Storage storage) {
+    private static void handleAddTask(String command, String args, TaskList tasks, Ui ui, Storage storage) {
         try {
-            Task newTask = parseTaskFromInput(input);
+            Task newTask = parseTaskFromInput(command, args);
 
             tasks.add(newTask);
-            storage.save(tasks.getTasks());
+            if (!storage.save(tasks.getTasks())) {
+                ui.showError(ERROR_SAVE_FAILED);
+            }
             ui.showAddedTask(newTask, tasks.size());
         } catch (IllegalArgumentException | DateTimeParseException e) {
             ui.showError(e.getMessage());
@@ -222,79 +235,81 @@ public class Parser {
     /**
      * Parses a task creation command into a Task object.
      *
-     * @param input Raw user input
+     * @param command Command word
+     * @param args    Rest of input after command
      * @return A Task object based on the command
-     * @throws IllegalArgumentException If format is invalid
      */
-    private static Task parseTaskFromInput(String input) {
-        if (input.startsWith(COMMAND_TODO)) {
-            return parseTodo(input);
+    private static Task parseTaskFromInput(String command, String args) {
+        switch (command) {
+        case COMMAND_TODO:
+            return parseTodo(args);
+        case COMMAND_DEADLINE:
+            return parseDeadline(args);
+        case COMMAND_EVENT:
+            return parseEvent(args);
+        default:
+            throw new IllegalArgumentException("The Ancient does not recognize this objective format.");
         }
-
-        if (input.startsWith(COMMAND_DEADLINE)) {
-            return parseDeadline(input);
-        }
-
-        if (input.startsWith(COMMAND_EVENT)) {
-            return parseEvent(input);
-        }
-
-        throw new IllegalArgumentException("Invalid format for adding a task.");
     }
 
     /**
      * Parses a todo command.
      *
-     * @param input Raw user input
+     * @param args Rest of input after "todo"
      * @return A ToDos task
      */
-    private static Task parseTodo(String input) {
-        String desc = input.substring(TODO_PREFIX_LENGTH).trim();
-
-        assert desc != null : "todo description substring should not be null";
-
+    private static Task parseTodo(String args) {
+        String desc = trimToEmpty(args);
         if (desc.isEmpty()) {
-            throw new IllegalArgumentException("The description of a todo cannot be empty.");
+            throw new IllegalArgumentException("A quest without purpose? Even creeps have objectives.");
         }
-
         return new ToDos(desc);
     }
 
     /**
      * Parses a deadline command.
      *
-     * @param input Raw user input
+     * Format: <desc> /by yyyy-MM-dd HHmm
+     *
+     * @param args Rest of input after "deadline"
      * @return A Deadlines task
      */
-    private static Task parseDeadline(String input) {
-        String payload = input.substring(DEADLINE_PREFIX_LENGTH).trim();
-        String[] parts = payload.split(DEADLINE_DELIMITER, 2);
+    private static Task parseDeadline(String args) {
+        String payload = trimToEmpty(args);
 
-        assert parts.length == 2 : "deadline should contain ' /by '";
-
-        if (parts.length < 2 || parts[0].trim().isEmpty() || parts[1].trim().isEmpty()) {
-            throw new IllegalArgumentException("Invalid deadline format. Use: deadline <desc> /by yyyy-MM-dd HHmm");
+        int delimiterIndex = payload.indexOf(DEADLINE_DELIMITER);
+        if (delimiterIndex < 0) {
+            throw new IllegalArgumentException("Your timeline is unclear. State it properly, or the battle is lost.");
         }
 
-        LocalDateTime by = LocalDateTime.parse(parts[1].trim(), INPUT_FORMAT);
-        return new Deadlines(parts[0].trim(), by);
+        String desc = payload.substring(0, delimiterIndex).trim();
+        String byString = payload.substring(delimiterIndex + DEADLINE_DELIMITER.length()).trim();
+
+        if (desc.isEmpty() || byString.isEmpty()) {
+            throw new IllegalArgumentException("State the deadline clearly: deadline <desc> /by yyyy-MM-dd HHmm");
+        }
+
+        LocalDateTime by = LocalDateTime.parse(byString, INPUT_FORMAT);
+        return new Deadlines(desc, by);
     }
 
     /**
      * Parses an event command.
      *
-     * @param input Raw user input
+     * Format: <desc> /from yyyy-MM-dd HHmm /to yyyy-MM-dd HHmm
+     *
+     * @param args Rest of input after "event"
      * @return An Events task
      */
-    private static Task parseEvent(String input) {
-        String payload = input.substring(EVENT_PREFIX_LENGTH).trim();
+    private static Task parseEvent(String args) {
+        String payload = trimToEmpty(args);
 
         int fromIndex = payload.indexOf(EVENT_FROM_DELIMITER);
         int toIndex = payload.indexOf(EVENT_TO_DELIMITER);
 
         if (fromIndex < 0 || toIndex < 0 || toIndex <= fromIndex) {
             throw new IllegalArgumentException(
-                    "Invalid event format. Use: event <desc> /from yyyy-MM-dd HHmm /to yyyy-MM-dd HHmm");
+                    "Your battle plan lacks clarity. Use: event <desc> /from yyyy-MM-dd HHmm /to yyyy-MM-dd HHmm");
         }
 
         String desc = payload.substring(0, fromIndex).trim();
@@ -303,11 +318,15 @@ public class Parser {
 
         if (desc.isEmpty() || fromString.isEmpty() || toString.isEmpty()) {
             throw new IllegalArgumentException(
-                    "Invalid event format. Use: event <desc> /from yyyy-MM-dd HHmm /to yyyy-MM-dd HHmm");
+                    "Your battle plan lacks clarity. Use: event <desc> /from yyyy-MM-dd HHmm /to yyyy-MM-dd HHmm");
         }
 
         LocalDateTime from = LocalDateTime.parse(fromString, INPUT_FORMAT);
         LocalDateTime to = LocalDateTime.parse(toString, INPUT_FORMAT);
+
+        if (to.isBefore(from)) {
+            throw new IllegalArgumentException("Event end time must be after start time.");
+        }
 
         return new Events(desc, from, to);
     }
@@ -315,25 +334,18 @@ public class Parser {
     /**
      * Handles the 'find' command to search for matching tasks.
      *
-     * @param input Raw user input
+     * @param args  Rest of input after "find"
      * @param tasks TaskList to search
      * @param ui    Ui for output
      */
-    private static void handleFind(String input, TaskList tasks, Ui ui) {
-        String[] parts = input.split(" ", 2);
-
-        if (parts.length < 2 || parts[1].trim().isEmpty()) {
-            ui.showError("You must provide a keyword to find.");
+    private static void handleFind(String args, TaskList tasks, Ui ui) {
+        String keyword = trimToEmpty(args);
+        if (keyword.isEmpty()) {
+            ui.showError(ERROR_FIND_NO_KEYWORD);
             return;
         }
 
-        assert parts.length == 2 : "find command should contain a keyword";
-
-        String keyword = parts[1].trim();
         TaskList matchingTasks = tasks.findTasks(keyword);
-
-        assert matchingTasks != null : "findTasks should never return null";
-
         ui.showSearchResults(matchingTasks);
     }
 
@@ -346,9 +358,9 @@ public class Parser {
      * @return Aggregated UI response string
      */
     public static String handleCommandForGui(String input, TaskList tasks, Storage storage) {
-        assert input != null : "input should not be null";
-        assert tasks != null : "tasks should not be null";
-        assert storage != null : "storage should not be null";
+        if (tasks == null || storage == null) {
+            throw new IllegalArgumentException("tasks/storage must not be null");
+        }
 
         Ui ui = new Ui();
         ui.clearMessages();
@@ -363,38 +375,36 @@ public class Parser {
      * - remind (defaults to 7 days)
      * - remind <days> (e.g., remind 3)
      *
-     * @param input Raw user input
+     * @param args  Rest of input after "remind"
      * @param tasks TaskList to search
      * @param ui    Ui for output
      */
-    private static void handleRemind(String input, TaskList tasks, Ui ui) {
-        assert input != null : "input should not be null";
-        assert tasks != null : "tasks should not be null";
-        assert ui != null : "ui should not be null";
-
-        String[] parts = input.trim().split("\\s+");
+    private static void handleRemind(String args, TaskList tasks, Ui ui) {
+        String raw = trimToEmpty(args);
 
         int days = DEFAULT_REMIND_DAYS;
 
-        if (parts.length == 2) {
-            try {
-                days = Integer.parseInt(parts[1]);
-            } catch (NumberFormatException e) {
-                ui.showError("Invalid reminder window. Use: remind <days> (e.g., remind 3)");
+        if (!raw.isEmpty()) {
+            String[] parts = raw.split("\\s+");
+            if (parts.length > 1) {
+                ui.showError(ERROR_REMIND_TOO_MANY);
                 return;
             }
-        } else if (parts.length > 2) {
-            ui.showError("Too many arguments. Use: remind <days> (e.g., remind 3)");
-            return;
+
+            try {
+                days = Integer.parseInt(parts[0]);
+            } catch (NumberFormatException e) {
+                ui.showError(ERROR_REMIND_BAD_DAYS);
+                return;
+            }
         }
 
         if (days < 0) {
-            ui.showError("Days must be a non-negative number.");
+            ui.showError(ERROR_REMIND_NEGATIVE);
             return;
         }
 
         TaskList reminders = tasks.getReminders(days);
         ui.showReminders(reminders, days);
     }
-
 }
